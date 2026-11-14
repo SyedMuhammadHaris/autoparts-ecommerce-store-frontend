@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #152629;
+  --color-paper: #f7f6f1;
+  --color-accent: #ba472c;
+  --color-muted: #536361;
+  --font-sans: Arial, Helvetica, sans-serif;
+}
+
+:root { color-scheme: light; background: var(--color-paper); color: var(--color-ink); }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+a, button { touch-action: manipulation; }
+:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 5px; }
+.site-shell { max-width: 1440px; margin: auto; padding: 0 6%; }
+.site-header { min-height: 112px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #d9dcd4; gap: 20px; }
+.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; font-size: 25px; font-weight: 700; letter-spacing: -1px; }
+.brand-mark { display: grid; place-items: center; width: 36px; height: 36px; color: var(--color-paper); background: var(--color-ink); font-size: 27px; }
+.brand-dot { color: var(--color-accent); }
+.market-label, .eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.6px; }
+.market-label { color: var(--color-muted); }
+.hero { display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 7%; padding: 80px 0 88px; }
+.eyebrow { display: flex; align-items: center; gap: 9px; margin: 0 0 28px; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-accent); }
+h1 { margin: 0; font-size: clamp(42px, 5.3vw, 76px); font-weight: 500; line-height: 1.06; letter-spacing: -3.5px; }
+h1 span { color: var(--color-accent); }
+.hero-description { max-width: 390px; margin: 28px 0; color: var(--color-muted); font-size: 16px; line-height: 1.8; }
+.text-link { display: inline-flex; justify-content: space-between; align-items: center; min-height: 44px; gap: 40px; border-bottom: 1px solid var(--color-ink); text-decoration: none; font-size: 13px; font-weight: 700; }
+.text-link span { font-size: 22px; }
+.road-art { position: relative; min-height: 430px; overflow: hidden; background: #e8e9e0; }
+.art-label, .art-caption, .art-number { position: absolute; z-index: 1; font-size: 10px; letter-spacing: 1.5px; }
+.art-label { top: 26px; left: 26px; }
+.art-caption { bottom: 26px; left: 26px; letter-spacing: .3px; }
+.art-number { right: 26px; bottom: 26px; }
+.road-track { position: absolute; width: 260px; height: 440px; right: -15px; top: 68px; border: 56px solid var(--color-ink); border-radius: 150px; transform: rotate(33deg); }
+.road-line { position: absolute; inset: -30px; border: 2px dashed #b8c2b3; border-radius: 135px; }
+.approach { border-top: 1px solid #d9dcd4; padding: 48px 0 60px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 7%; }
+.approach .eyebrow { color: var(--color-muted); margin-bottom: 16px; }
+h2 { font-size: clamp(26px, 3vw, 36px); font-weight: 500; letter-spacing: -1px; line-height: 1.25; margin: 0; }
+.approach > p { align-self: end; max-width: 390px; color: var(--color-muted); font-size: 15px; line-height: 1.8; margin: 0; }
+.site-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 25px 0; border-top: 1px solid #d9dcd4; color: var(--color-muted); font-size: 11px; }
+.skip-link { position: fixed; top: 10px; left: 10px; z-index: 10; padding: 12px; background: var(--color-ink); color: white; transform: translateY(-200%); }
+.skip-link:focus { transform: translateY(0); }
+.state-panel { min-height: 60vh; padding: 80px 0; }
+.state-panel p { color: var(--color-muted); max-width: 440px; line-height: 1.8; }
+.state-panel button { min-height: 44px; padding: 10px 20px; border: 0; background: var(--color-ink); color: white; cursor: pointer; }
+@media (max-width: 700px) {
+  .site-header { min-height: 86px; }
+  .market-label { max-width: 100px; text-align: right; font-size: 9px; }
+  .hero { grid-template-columns: 1fr; gap: 42px; padding: 48px 0; }
+  h1 { letter-spacing: -2px; }
+  .road-art { min-height: 320px; }
+  .road-track { top: 20px; right: 0; }
+  .approach { grid-template-columns: 1fr; gap: 24px; padding: 32px 0 40px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

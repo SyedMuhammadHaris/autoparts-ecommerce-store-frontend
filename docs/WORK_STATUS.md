@@ -1,15 +1,18 @@
 # Work status
 
 - Current phase: Phase 1 — Project Foundation.
-- Current task: Repository ignore rules only; frontend foundation is pending approval.
-- Active branch: `chore/frontend-foundation`.
-- Completed work: Added `.gitignore` for private environment files, dependencies, Next.js artifacts, caches, and local logs.
-- Important files changed: `.gitignore`, `docs/WORK_STATUS.md`.
-- Pending work: Full foundation plan must be reconciled with the now-populated AGENTS.md before implementation approval.
-- Approved dependencies: None installed or approved by this task.
-- Architectural decisions: Preserve `.env.example` and dependency lockfiles in version control; keep private environment files ignored.
-- Verification: Git check-ignore confirmed private environment and generated-file rules, the .env.example exception, and that package-lock.json remains unignored. Whitespace checks passed. Application tests were not run (configuration-only change).
-- Known issues: Application code and test tooling are not initialized. Git metadata shows .env.local is already tracked and currently reports it deleted in the working tree. Ignore rules do not untrack existing files. Its contents were not accessed; no index changes were made.
-- Commit status: Not committed; user approval required.
-- PR status: No merge or closure confirmed by the user.
-- Next recommended task: Review and commit the ignore-rule changes after approval.
+- Current milestone: Frontend bootstrap implemented and verified within the limits below; commit approved by the user.
+- Active branch: `chore/frontend-bootstrap`.
+- Completed work: Next.js App Router scaffold, strict TypeScript, Tailwind design tokens, responsive preparation page, shared header/footer, metadata with noindex, loading/error/not-found foundations, public-origin validation, Jest and React Testing Library tests, Docker development/verification stages, safe environment example and README.
+- Important files changed: README.md, Dockerfile, .dockerignore, .env.example, .node-version, package.json, package-lock.json, TypeScript/Next/PostCSS/ESLint/Jest configuration, src/, tests/, docs/WORK_STATUS.md.
+- Approved runtime dependencies: Node 24.22.3 with bundled npm 11.19.1; Next 16.4.6; React and React DOM 19.3.1.
+- Approved development dependencies: TypeScript 5.9.3; @types/node 24.10.1; @types/react and @types/react-dom 19.3.0; Tailwind and @tailwindcss/postcss 4.3.5; PostCSS 8.5.23; ESLint 9.39.5 (explicit user approval to retain its EOL limitation); eslint-config-next 16.4.6; Jest and jest-environment-jsdom 30.5.2; @types/jest 30.0.0; @testing-library/react 16.3.3; @testing-library/dom 10.4.1; @testing-library/jest-dom 6.9.1. Exact transitive versions are recorded in package-lock.json.
+- Architectural decisions: Local-only repository work; no hosting or deployment. All dependency installation, lock generation and application checks run in Docker. No catalog, authentication, checkout, API client or live backend connectivity in this milestone. Backend-owned Compose integration follows in a separate approved milestone. Backend APIs use class-based views as requested. Public configuration only in frontend.
+- Environment requirements: User confirmed NEXT_PUBLIC_SITE_URL is configured and saved in .env.local. Private environment files are not inspected or modified and are excluded from Docker contexts. Verification builds use only the safe public example origin.
+- Verification: Final Docker lock export and npm ci succeeded with ESLint 9.39.5. The final source passed ESLint, all 16 Jest tests across 2 suites (1.304 seconds), production compilation and TypeScript checks. User confirmed environment readiness; local HTTP returned 200 with the expected heading and noindex metadata. Missing routes returned 404. Windows bind-mount hot reload was verified using a temporary source edit and restored original content with Webpack polling. Default Turbopack watching did not observe edits here, so the development script now uses Webpack and the image sets WATCHPACK_POLLING=true. No watcher dependency was added. Git checks passed for tracked and new files; private environment files remain ignored and untracked. Backend working tree is unchanged.
+- Lint dependency decision: User initially approved an ESLint 10 trial. Although checks passed, Next's import/React/accessibility plugins declare peers only through ESLint 9. After disclosure, user explicitly approved returning to 9.39.5 with its EOL limitation documented. A supported lint-toolchain migration requires a future proposal; no peer-range overrides or forced installs were added.
+- Known issues: Browser access host is unavailable; desktop/mobile visual inspection could not be performed and is not claimed. ESLint 9 is out of upstream support, as explicitly accepted by the user. npm also reports upstream transitive glob and whatwg-encoding deprecation warnings; a security audit is not claimed. Retained dependency volumes must be refreshed intentionally after approved package changes. Development noindex settings need review before launch. The temporary verification preview was stopped; backend services were not changed.
+- Preview status: At the user's request, the local preview was restarted on localhost:3000 and verified with HTTP 200. It remains running for the user; private environment contents were not inspected.
+- Commit status: User explicitly approved the focused frontend bootstrap commit; this record is included in that commit.
+- PR status: User previously confirmed initial frontend setup PR #1 merged. User confirmed backend bootstrap PR #2 and class-based health PR #3 merged; backend main was clean at milestone start. No frontend bootstrap PR exists yet.
+- Next recommended task: Push the frontend bootstrap branch and create its PR using the supplied commands. Wait for user-confirmed merge/closure before proposing backend Compose integration.
