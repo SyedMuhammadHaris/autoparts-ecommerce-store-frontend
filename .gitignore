@@ -1,0 +1,29 @@
+# Private environment configuration (keep safe examples versioned)
+.env
+.env.*
+*.env
+!.env.example
+
+# Dependencies and generated build files
+node_modules/
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# Test, coverage, and tooling caches
+coverage/
+.eslintcache
+playwright-report/
+test-results/
+
+# Local logs and deployment metadata
+*.log
+.vercel/
+
+# Operating system artifacts
+.DS_Store
+Thumbs.db
+Desktop.ini
