@@ -3,8 +3,8 @@
 Phase 1 frontend foundation: Next.js App Router, strict TypeScript, Tailwind
 tokens, accessible base layout, error/loading/not-found states, and Jest with
 React Testing Library. The page clearly communicates that the store is in
-preparation. Catalog, authentication, checkout and live backend connectivity are
-not implemented in this milestone.
+preparation. A server-only API client and fixed-purpose health BFF route verify
+connectivity to Django. Catalog, authentication and checkout remain Phase 2+ work.
 
 ## Environment
 
@@ -13,6 +13,8 @@ Manually populate `.env.local` using `.env.example`:
 | Variable | Required | Purpose | Local example |
 | --- | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Yes | Public canonical site origin; used for metadata | `http://localhost:3000` |
+| `BACKEND_API_URL` | Yes for BFF | Server-only Django base URL inside Compose | `http://backend:8000/api/v1` |
+| `BACKEND_API_TIMEOUT_MS` | Optional | Bounded request timeout, 100–15000 ms; default 5000 | `5000` |
 
 Use an HTTP/HTTPS origin without credentials, paths, query parameters or fragments.
 This value is public. Never put backend, database, Redis, session or R2 secrets
@@ -49,8 +51,32 @@ retains Next.js's default compiler. No extra watcher package is installed.
 After approved dependency updates, refresh the dependency volume intentionally;
 an existing volume may still contain the old dependency versions.
 
-The backend repository will own integrated Compose orchestration in a later
-approved milestone. This branch does not modify the backend repository.
+The backend repository owns integrated Compose orchestration. For the full stack,
+run `docker compose --env-file .local.env up -d --wait --wait-timeout 120` there.
+The shared Docker network resolves `backend`; a standalone frontend container
+must join that network or use a deliberately configured host-accessible backend
+address. Do not expose the Docker-only URL through NEXT_PUBLIC variables.
+
+## Server boundary and BFF contract
+
+`GET /api/health` calls only Django `/api/v1/health/ready/` on the server. It
+returns `{ "status": "ok" }` when PostgreSQL and Redis are ready and a sanitized
+503 envelope otherwise. It never forwards backend error bodies, cookies,
+arbitrary destinations or untrusted request headers. Safe request IDs propagate
+through `X-Request-ID`; response/request caching and redirects are disabled.
+Timeouts and invalid upstream content are covered by tests. No authenticated
+proxy behavior is implemented yet; session and CSRF flows belong to Phase 2.
+
+The backend client imports `server-only`, handled internally by Next.js without
+an added npm package. `npm run verify:boundary` creates a temporary Client
+Component inside the verification container and asserts that the Next compiler
+rejects its import, then removes it. Jest uses a marker mock because it does not
+run the Next compiler. The normal clean production build runs after this probe.
+Missing configuration reports variable names through configuration validation;
+the public BFF response remains generic and never exposes configuration values.
+
+`robots.txt` disallows indexing during foundation development, alongside metadata
+noindex. Image storage provider selection and SDKs are deferred by the user.
 
 ## Verification
 

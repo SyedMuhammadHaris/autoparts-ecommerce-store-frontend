@@ -6,5 +6,8 @@ export default createJestConfig({
   testEnvironment: "jsdom",
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   testMatch: ["<rootDir>/tests/**/*.test.ts", "<rootDir>/tests/**/*.test.tsx"],
-  moduleNameMapper: { "^@/(.*)$": "<rootDir>/src/$1" },
+  moduleNameMapper: {
+    "^@/(.*)$": "<rootDir>/src/$1",
+    "^server-only$": "<rootDir>/tests/mocks/server-only.ts",
+  },
 });

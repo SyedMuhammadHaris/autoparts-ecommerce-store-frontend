@@ -9,7 +9,8 @@
     "start": "next start --hostname 0.0.0.0",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "verify:boundary": "node scripts/verify-server-boundary.mjs"
   },
   "dependencies": {
     "next": "16.4.6",

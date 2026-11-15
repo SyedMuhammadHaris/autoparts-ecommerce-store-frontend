@@ -27,4 +27,4 @@ CMD ["npm", "run", "dev"]
 FROM development AS verification
 ARG NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
-RUN npm run lint && npm run test && npm run build && npm run typecheck
+RUN npm run lint && npm run test && npm run verify:boundary && npm run build && npm run typecheck

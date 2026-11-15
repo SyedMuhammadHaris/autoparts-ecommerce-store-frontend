@@ -1,8 +1,8 @@
 # Work status
 
 - Current phase: Phase 1 — Project Foundation.
-- Current milestone: Frontend bootstrap implemented and verified within the limits below; commit approved by the user.
-- Active branch: `chore/frontend-bootstrap`.
+- Current milestone: Remaining Phase 1 completion; server-only BFF feature verified, final full-stack acceptance pending.
+- Active branch: `feat/phase-1-completion` (one branch per repository for remaining Phase 1 work).
 - Completed work: Next.js App Router scaffold, strict TypeScript, Tailwind design tokens, responsive preparation page, shared header/footer, metadata with noindex, loading/error/not-found foundations, public-origin validation, Jest and React Testing Library tests, Docker development/verification stages, safe environment example and README.
 - Important files changed: README.md, Dockerfile, .dockerignore, .env.example, .node-version, package.json, package-lock.json, TypeScript/Next/PostCSS/ESLint/Jest configuration, src/, tests/, docs/WORK_STATUS.md.
 - Approved runtime dependencies: Node 24.22.3 with bundled npm 11.19.1; Next 16.4.6; React and React DOM 19.3.1.
@@ -13,6 +13,9 @@
 - Lint dependency decision: User initially approved an ESLint 10 trial. Although checks passed, Next's import/React/accessibility plugins declare peers only through ESLint 9. After disclosure, user explicitly approved returning to 9.39.5 with its EOL limitation documented. A supported lint-toolchain migration requires a future proposal; no peer-range overrides or forced installs were added.
 - Known issues: Browser access host is unavailable; desktop/mobile visual inspection could not be performed and is not claimed. ESLint 9 is out of upstream support, as explicitly accepted by the user. npm also reports upstream transitive glob and whatwg-encoding deprecation warnings; a security audit is not claimed. Retained dependency volumes must be refreshed intentionally after approved package changes. Development noindex settings need review before launch. The temporary verification preview was stopped; backend services were not changed.
 - Preview status: At the user's request, the local preview was restarted on localhost:3000 and verified with HTTP 200. It remains running for the user; private environment contents were not inspected.
-- Commit status: User explicitly approved the focused frontend bootstrap commit; this record is included in that commit.
+- Phase 1 feature: Added a typed, fixed-destination server-side Django client; bounded timeouts, no caching or redirects, safe configuration validation, sanitized BFF 503 responses and request correlation. GET /api/health calls Django readiness and returns only a validated status. Added robots.txt disallow-all for local foundation. Image storage selection/SDKs are explicitly deferred. No npm package was added; Next internally handles the server-only marker.
+- Feature verification: 31 Jest tests passed across four suites (1.437 seconds), lint, TypeScript and production compilation passed. A temporary Client Component import was rejected by the actual Next compiler, proving the server-only boundary without an installed marker package. The probe was removed. Live host HTTP through Next BFF to Django/PostgreSQL/Redis returned 200 and verified no-store plus propagated request ID. Backend OpenAPI HTTP endpoint returned version 3.0.3.
+- Environment confirmation: User confirmed BACKEND_API_URL saved in .env.local; optional BACKEND_API_TIMEOUT_MS defaults to 5000. Private files remain untouched and uninspected.
+- Commit status: User authorized feature-by-feature commits on the two completion branches without further prompts. Push and PR creation remain user-owned. Final failure/recovery and shutdown checks are pending.
 - PR status: User previously confirmed initial frontend setup PR #1 merged. User confirmed backend bootstrap PR #2 and class-based health PR #3 merged; backend main was clean at milestone start. No frontend bootstrap PR exists yet.
-- Next recommended task: Push the frontend bootstrap branch and create its PR using the supplied commands. Wait for user-confirmed merge/closure before proposing backend Compose integration.
+- Next recommended task: Complete full-stack failure/recovery and final documentation, then provide both push/PR commands (backend merged first). User confirmed bootstrap PR #2 and backend Compose PR #4 merged. Do not start Phase 2 until separately approved.
