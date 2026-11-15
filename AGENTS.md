@@ -27,7 +27,7 @@ The application includes:
 - Bank transfer verification: Manual administrator verification
 - Inventory: Reserved when an order is created
 - Shipping: City/zone-based delivery charges
-- Media storage: Cloudflare R2
+- Media storage: provider decision deferred by the user to a later phase
 - Design: Modern, minimal, premium
 - Branding: Fixed design with editable content
 - Admin panel: Custom Next.js dashboard
@@ -475,6 +475,7 @@ BACKEND_API_URL=http://backend:8000/api/v1
 
 # Public storefront URL
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+BACKEND_API_TIMEOUT_MS=5000
 ```
 
 ### Important Rules
