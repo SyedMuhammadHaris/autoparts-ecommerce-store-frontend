@@ -475,6 +475,7 @@ BACKEND_API_URL=http://backend:8000/api/v1
 
 # Public storefront URL
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+BACKEND_API_TIMEOUT_MS=5000
 ```
 
 ### Important Rules
