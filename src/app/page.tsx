@@ -1,21 +1,19 @@
+import Link from "next/link";
+
 export default function HomePage() {
   return (
     <main id="main-content">
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-copy">
-          <p className="eyebrow">
-            <span className="status-dot" /> Store in preparation
-          </p>
+          <p className="eyebrow"><span className="status-dot" /> Automotive parts · Pakistan</p>
           <h1 id="hero-title">
             The right part.<br /><span>A better drive.</span>
           </h1>
           <p className="hero-description">
             A dedicated destination for automotive parts in Pakistan.
-            We’re getting the details right before we open the doors.
+            Explore the catalog and find the right option for your vehicle.
           </p>
-          <a className="text-link" href="#our-approach">
-            A considered approach <span aria-hidden="true">↗</span>
-          </a>
+          <Link className="text-link" href="/products">Explore parts <span aria-hidden="true">↗</span></Link>
         </div>
         <div className="road-art" aria-hidden="true">
           <span className="art-label">FOR THE ROAD AHEAD</span>
@@ -33,7 +31,7 @@ export default function HomePage() {
         </div>
         <p>
           We’re building a clear, considered way to explore automotive parts.
-          The storefront is still in preparation; browsing and ordering will follow.
+          Browse product options and availability. Online ordering will follow with checkout.
         </p>
       </section>
     </main>

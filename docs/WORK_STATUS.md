@@ -1,7 +1,7 @@
 # Work status
 
 - Current phase: Phase 2 — Authentication and Catalog, explicitly approved.
-- Current milestone: Authentication/account/BFF foundation verified; catalog/admin feature commits and final review documentation pending.
+- Current milestone: Authentication, account, catalog and initial admin verified; final review documentation pending.
 - Active branch: `feat/phase-2`. One branch per repository, feature-wise commits authorized.
 - Starting point: User confirmed Phase 1 PRs merged and local main updated; frontend base `3719d60`, backend base `5e2b6f0`.
 - Completed: Session signup/login/logout, own-name account UI, optional skippable email OTP, fresh CSRF token before mutations, fixed auth/admin BFF destinations, exact-origin validation, bounded JSON bodies, separate HttpOnly cookie forwarding and sanitized errors. No tokens in browser storage.
@@ -12,5 +12,5 @@
 - Environment: No new frontend variables. Private `.env.local` and backend `.local.env` were never inspected or modified. Only runtime applications/Compose load them. SMTP is backend-only, optional and disabled until manually configured.
 - Architecture: Django owns business rules, PKR prices, permissions and inventory. Next uses server-rendered public catalog and a typed same-origin browser client. HTTP/HTTPS product/gallery image URLs are browser-rendered without server optimizer fetching; storage/uploads deferred.
 - Known limits: Initial admin loads at most 10,000 records/resource; category/brand storefront dropdowns show first 100. Ordering/fitment/uploads remain unimplemented. Local noindex remains until launch. Deployment remains Phase 7.
-- Git/PR status: Feature commits in progress. No pushes or PR creation. User owns pushing/review/merge; merge backend first. Do not infer Phase 2 PR outcomes.
+- Git/PR status: Authentication/BFF committed as `a12605e`; catalog/admin commit prepared. No pushes or PR creation. User owns pushing/review/merge; merge backend first. Do not infer Phase 2 PR outcomes.
 - Next: Complete feature commits/docs, then wait for both PR outcomes and explicit Phase 3 approval.
