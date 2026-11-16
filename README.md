@@ -1,10 +1,11 @@
 # autoparts-ecommerce-store-frontend
 
-Phase 1 frontend foundation: Next.js App Router, strict TypeScript, Tailwind
+Phase 2 storefront: Next.js App Router, strict TypeScript, Tailwind
 tokens, accessible base layout, error/loading/not-found states, and Jest with
 React Testing Library. The page clearly communicates that the store is in
-preparation. A server-only API client and fixed-purpose health BFF route verify
-connectivity to Django. Catalog, authentication and checkout remain Phase 2+ work.
+preparation for ordering. Sessions, optional email OTP, customer accounts, catalog
+listings/details/variants and a permission-aware catalog admin are implemented.
+Checkout remains Phase 3. See [Phase 2 review](docs/phase-2.md).
 
 ## Environment
 
@@ -64,8 +65,8 @@ returns `{ "status": "ok" }` when PostgreSQL and Redis are ready and a sanitized
 503 envelope otherwise. It never forwards backend error bodies, cookies,
 arbitrary destinations or untrusted request headers. Safe request IDs propagate
 through `X-Request-ID`; response/request caching and redirects are disabled.
-Timeouts and invalid upstream content are covered by tests. No authenticated
-proxy behavior is implemented yet; session and CSRF flows belong to Phase 2.
+Timeouts and invalid upstream content are covered by tests. Phase 2 adds fixed
+auth/admin BFF routes with session cookies, exact-origin checks and CSRF protection.
 
 The backend client imports `server-only`, handled internally by Next.js without
 an added npm package. `npm run verify:boundary` creates a temporary Client

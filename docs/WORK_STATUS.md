@@ -1,7 +1,7 @@
 # Work status
 
 - Current phase: Phase 2 — Authentication and Catalog, explicitly approved.
-- Current milestone: Authentication, account, catalog and initial admin verified; final review documentation pending.
+- Current milestone: Phase 2 implementation complete within the documented scope; user PR review/merge pending.
 - Active branch: `feat/phase-2`. One branch per repository, feature-wise commits authorized.
 - Starting point: User confirmed Phase 1 PRs merged and local main updated; frontend base `3719d60`, backend base `5e2b6f0`.
 - Completed: Session signup/login/logout, own-name account UI, optional skippable email OTP, fresh CSRF token before mutations, fixed auth/admin BFF destinations, exact-origin validation, bounded JSON bodies, separate HttpOnly cookie forwarding and sanitized errors. No tokens in browser storage.
@@ -12,5 +12,8 @@
 - Environment: No new frontend variables. Private `.env.local` and backend `.local.env` were never inspected or modified. Only runtime applications/Compose load them. SMTP is backend-only, optional and disabled until manually configured.
 - Architecture: Django owns business rules, PKR prices, permissions and inventory. Next uses server-rendered public catalog and a typed same-origin browser client. HTTP/HTTPS product/gallery image URLs are browser-rendered without server optimizer fetching; storage/uploads deferred.
 - Known limits: Initial admin loads at most 10,000 records/resource; category/brand storefront dropdowns show first 100. Ordering/fitment/uploads remain unimplemented. Local noindex remains until launch. Deployment remains Phase 7.
-- Git/PR status: Authentication/BFF committed as `a12605e`; catalog/admin commit prepared. No pushes or PR creation. User owns pushing/review/merge; merge backend first. Do not infer Phase 2 PR outcomes.
-- Next: Complete feature commits/docs, then wait for both PR outcomes and explicit Phase 3 approval.
+- Catalog/admin: Search/category/brand/price filters, sorting, pagination, product details/gallery/options, PKR prices and stock display; product/taxonomy/variant/attribute/gallery editing, idempotent stock adjustments, superuser role assignment and read-only audits. Backend permissions remain authoritative.
+- Important files: src/app/account/, login/, signup/, verify-email/, products/, admin/, api/; src/lib/api.ts, server/proxy.ts, server/catalog.ts, catalog-types.ts; src/proxy.ts; shared components/styles; tests/; README and Phase 2/PR documentation.
+- Git/PR status: Authentication/BFF `a12605e`, storefront/admin `63bd7d8`, followed by final acceptance documentation. No pushes or PR creation. User owns pushing/review/merge; merge backend first. Do not infer Phase 2 PR outcomes.
+- Local preview: Full stack remains running at http://localhost:3000/products for review. No default administrator/password. Backend docs explain interactive administrator creation.
+- Next: User follows docs/PR_INSTRUCTIONS.md and confirms both PR outcomes. Wait for explicit approval before Phase 3.
