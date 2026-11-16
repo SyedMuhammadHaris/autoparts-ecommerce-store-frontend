@@ -12,6 +12,12 @@ export function ProductOption({ variants }: { variants: Variant[] }) {
     </select></label>
     <strong className="product-price">{priceLabel(variant.price)}</strong>
     <p>{variant.quantity_available > 0 ? `${variant.quantity_available} available` : "Out of stock"}</p>
+    <section aria-label="Vehicle compatibility"><h2>Vehicle compatibility</h2>
+      {variant.fitment_status === "universal" ? <p>Universal fit — check dimensions and installation requirements.</p> : variant.fitment_status === "specific" && variant.fitments?.length ? <>
+        <ul>{variant.fitments.map(fitment => <li key={fitment.id}>{fitment.make_name} {fitment.model_name} · {fitment.year_start}–{fitment.year_end} · {fitment.engine || "Engine unspecified"} · {fitment.trim || "Trim unspecified"}</li>)}</ul>
+        <p>These records apply to this option. Confirm engine, trim and part specifications; make, model and year alone may not establish a fit.</p>
+      </> : <p>Compatibility not recorded. Confirm fitment before ordering.</p>}
+    </section>
     <small>Ordering will become available with checkout. Availability is confirmed when ordering.</small>
   </div>;
 }

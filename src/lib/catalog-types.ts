@@ -1,6 +1,9 @@
 export type Page<T> = { count: number; next: string | null; previous: string | null; results: T[] };
 export type Taxonomy = { id: number; name: string; slug: string; is_active: boolean; parent?: number | null };
-export type Variant = { id: number; sku: string; price: string; quantity_available: number; values: { id: number; attribute_name: string; value: string }[] };
+export type VehicleMake = { id: number; name: string; slug: string };
+export type VehicleModel = { id: number; make: number; make_name: string; name: string; slug: string };
+export type VehicleFitment = { id: number; model: number; make: number; make_name: string; model_name: string; year_start: number; year_end: number; engine: string; trim: string };
+export type Variant = { id: number; sku: string; price: string; quantity_available: number; fitment_status?: "unknown" | "specific" | "universal"; fitments?: VehicleFitment[]; values: { id: number; attribute_name: string; value: string }[] };
 export type Product = {
   id: number; name: string; slug: string; sku: string; description: string;
   category_name: string; brand_name: string | null; base_price: string; price: string;

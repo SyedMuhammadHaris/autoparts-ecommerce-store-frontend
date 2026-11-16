@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { readBrands, readCategories, readProducts } from "@/lib/server/catalog";
+import { CatalogInvalidFilters, readBrands, readCategories, readProducts, readVehicleMakes, readVehicleModels, readVehicleFitments } from "@/lib/server/catalog";
+import { VehicleSelector } from "@/components/vehicle-selector";
+import { vehicleQuery } from "@/lib/vehicle-query";
 import { priceLabel } from "@/lib/catalog-types";
 
 export const dynamic = "force-dynamic";
@@ -8,12 +10,16 @@ export const metadata: Metadata = { title: "Shop automotive parts", description:
 
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const query = await searchParams;
+  const text = (key: string) => typeof query[key] === "string" ? query[key] as string : "";
   let data;
+  let invalid = false;
   try {
-    data = await Promise.all([readProducts(query), readCategories(), readBrands()]);
-  } catch { /* Render the recoverable state below, outside the fetch boundary. */ }
+    data = await Promise.all([readProducts(query), readCategories(), readBrands(), readVehicleMakes(), readVehicleModels(text("make")), readVehicleFitments(text("make"), text("model"))]);
+  } catch (failure) { invalid = failure instanceof CatalogInvalidFilters; }
+  if (invalid) return <main id="main-content" className="state-panel"><h1>Check your filters.</h1><p>Select a make, a model belonging to it, and a supported year or price range.</p><Link href="/products">Clear filters and try again</Link></main>;
   if (!data) return <main id="main-content" className="state-panel"><h1>Catalog temporarily unavailable.</h1><p>We couldn’t load the parts right now.</p><Link href="/products">Try again</Link></main>;
-    const [products, categories, brands] = data;
+    const [products, categories, brands, makes, models, fitments] = data;
+    const vehicle = vehicleQuery(query);
     const page = Math.max(1, Number(query.page) || 1);
     function pageLink(next: number) {
       const params = new URLSearchParams();
@@ -23,6 +29,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
     return <main id="main-content" className="catalog-page">
       <p className="eyebrow">Find your next part</p><h1>Parts for the road ahead.</h1>
       <form className="catalog-filters" action="/products">
+        <VehicleSelector key={vehicle || "all-vehicles"} makes={makes} models={models} fitments={fitments} initial={{ make: text("make"), model: text("model"), year: text("year"), engine: text("engine"), trim: text("trim") }} />
         <label>Search<input name="search" defaultValue={typeof query.search === "string" ? query.search : ""} placeholder="Product name or SKU" maxLength={120} /></label>
         <label>Category<select name="category" defaultValue={typeof query.category === "string" ? query.category : ""}><option value="">All categories</option>{categories.results.map(value => <option key={value.id} value={value.slug}>{value.name}</option>)}</select></label>
         <label>Brand<select name="brand" defaultValue={typeof query.brand === "string" ? query.brand : ""}><option value="">All brands</option>{brands.results.map(value => <option key={value.id} value={value.slug}>{value.name}</option>)}</select></label>
@@ -34,7 +41,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
       <p>{products.count} product{products.count === 1 ? "" : "s"}</p>
       {!products.results.length && <div className="empty-panel"><h2>No parts found yet.</h2><p>Try a different search or check back as the catalog grows.</p></div>}
       <div className="product-grid">{products.results.map(product => <article className="product-card" key={product.id}>
-        <Link href={`/products/${product.slug}`}>
+        <Link href={`/products/${product.slug}${vehicle ? "?" + vehicle : ""}`}>
           <div className="product-image">{product.display_image_url ? (
             // External links are rendered in the browser; no server image optimizer fetches them.
             // eslint-disable-next-line @next/next/no-img-element

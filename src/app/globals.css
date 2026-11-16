@@ -94,6 +94,11 @@ button:disabled { opacity: .6; cursor: wait; }
 @media(max-width:800px) { .catalog-filters { grid-template-columns: 1fr 1fr; } .product-grid { grid-template-columns: 1fr 1fr; } .product-detail { grid-template-columns: 1fr; gap: 28px; } }
 @media(max-width:480px) { .product-grid, .catalog-filters { grid-template-columns: 1fr; } }
 .admin-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 28px 0; }
+.vehicle-selector { grid-column: 1 / -1; border: 1px solid #b9c0b9; padding: 24px; margin: 0 0 8px; min-width: 0; }
+.vehicle-selector legend { font-size: 20px; font-weight: 600; padding: 0 8px; }
+.vehicle-selector p { font-size: 13px; line-height: 1.7; color: var(--color-muted); }
+.vehicle-fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media(max-width:700px) { .vehicle-fields { grid-template-columns: 1fr; } }
 .admin-tabs [aria-current=page] { background: var(--color-ink); color: white; }
 .admin-layout { display: grid; grid-template-columns: 1.2fr 1fr; gap: 32px; align-items: start; }
 .admin-layout h2 { font-size: 24px; margin-bottom: 16px; }

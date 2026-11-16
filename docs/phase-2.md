@@ -10,7 +10,7 @@ is not read or modified by the agent; Next/Compose load it at runtime.
 - `/signup`, `/login`: name/email/password signup and Django session login.
 - `/account`: own name, email/verification status and server-side logout.
 - `/verify-email`: optional six-digit email OTP, with a persistent Skip link.
-- `/products`: server-rendered search, category/brand filters, sorting and pagination.
+- `/products`: server-rendered search, make/model/year and category/brand/price filters, sorting and pagination.
 - `/products/{slug}`: product detail, image gallery and variant/stock selection.
 - `/admin`: permission-aware product, category, brand, variant, attribute and image
   management; stock adjustments; superuser-only role assignment; read-only audit.
@@ -49,11 +49,13 @@ resend after cooldown if mail does not arrive. Automated tests never send email.
 
 ## Scope and limitations
 
-Ordering, checkout, vehicle fitment matching and storage uploads are not implemented.
+Ordering, checkout and storage uploads are not implemented.
 The initial management view loads up to 10,000 records per resource and fails
 visibly above that limit; larger catalogs need paginated management/search.
 Storefront category/brand dropdowns initially show the first 100 entries. Public
 product lists paginate at the backend. Local noindex remains enabled until launch.
+Vehicle dropdowns paginate through fixed lookup endpoints up to 10,000 records per
+lookup; options are not silently truncated to the first page.
 ESLint 9's previously accepted end-of-support limitation remains unchanged.
 
 Run lint, Jest, typecheck, the compiler server-boundary probe and production build
@@ -62,3 +64,22 @@ are not a substitute for actual browser visual QA.
 
 Push `feat/phase-2` and open the PR yourself after review. Merge the backend PR
 first. Phase 3 requires explicit approval after both Phase 2 PR outcomes are known.
+
+## Vehicle compatibility
+
+The storefront offers Make → Model → Year, plus optional engine/trim filters.
+Changing make clears model/year/engine/trim; changing model clears year/engine/trim.
+Years come from the active recorded ranges. Selection stays in pagination and
+product links; detail pages show only matching active variants or explicit
+universal options. Clear the selection on detail to view all product options.
+
+Unknown compatibility is excluded from vehicle-filtered results and is never
+shown as universal. Product details display compatibility per selected variant,
+including year ranges and engine/trim information. An unspecified engine or trim
+is shown explicitly; users should confirm these details and part specifications.
+
+Administrators maintain Vehicle makes, Vehicle models, Vehicle year ranges and
+Product fitments in that order. Active variant assignments set its compatibility
+to Specific vehicles; mark Universal only when supported by verified part data.
+Existing variants migrate to Unknown. No external vehicle database or package is
+used; manually enter verified vehicle compatibility through the admin.

@@ -5,21 +5,23 @@ import { CatalogNotFound, readProduct } from "@/lib/server/catalog";
 import { ProductOption } from "@/components/product-option";
 
 export const dynamic = "force-dynamic";
-type Props = { params: Promise<{ slug: string }> };
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  try { const product = await readProduct((await params).slug); return { title: product.name, description: product.description.slice(0, 160), alternates: { canonical: `/products/${product.slug}` } }; }
+type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+  try { const product = await readProduct((await params).slug, await searchParams); return { title: product.name, description: product.description.slice(0, 160), alternates: { canonical: `/products/${product.slug}` } }; }
   catch { return { title: "Product unavailable", robots: { index: false } }; }
 }
-export default async function ProductPage({ params }: Props) {
+export default async function ProductPage({ params, searchParams }: Props) {
+  const query = await searchParams;
   let product;
   try {
-    product = await readProduct((await params).slug);
+    product = await readProduct((await params).slug, query);
   } catch (failure) {
     if (failure instanceof CatalogNotFound) notFound();
   }
   if (!product) return <main id="main-content" className="state-panel"><h1>Product unavailable.</h1><p>We couldn’t load this part right now. Please try again.</p><Link href="/products">Back to parts</Link></main>;
     return <main id="main-content" className="catalog-page">
       <nav className="breadcrumbs" aria-label="Breadcrumb"><Link href="/products">All parts</Link><span> / {product.category_name}</span></nav>
+      {query.make && <p>Showing options matching your vehicle selection, including universal parts. <Link href={`/products/${product.slug}`}>View all product options</Link></p>}
       <div className="product-detail">
         <div><div className="product-image detail-image">{product.display_image_url ? (
           // eslint-disable-next-line @next/next/no-img-element

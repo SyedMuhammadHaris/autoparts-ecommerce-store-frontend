@@ -16,3 +16,11 @@ it("rejects paths and classifies unpublished products as not found", async () =>
   global.fetch = jest.fn().mockResolvedValue(Response.json({}, { status: 404 }));
   await expect(readProduct("draft-product")).rejects.toBeInstanceOf(CatalogNotFound);
 });
+it("forwards make/model/year and engine/trim as bounded query values", async () => {
+  await readProducts({ make: "1", model: "10", year: "2018", engine: "1.8", trim: "Grande" });
+  expect(fetch).toHaveBeenCalledWith("http://backend:8000/api/v1/catalog/products/?make=1&model=10&year=2018&engine=1.8&trim=Grande", expect.anything());
+});
+it("retains vehicle selection when loading a product detail", async () => {
+  await readProduct("brake-pad", { make: "1", model: "10", year: "2018", destination: "http://evil.example" });
+  expect(fetch).toHaveBeenCalledWith("http://backend:8000/api/v1/catalog/products/brake-pad/?make=1&model=10&year=2018", expect.anything());
+});

@@ -252,6 +252,7 @@ The future storefront includes:
 - Search
 - Filters and sorting
 - Product variants
+- Vehicle make/model/year filtering and variant compatibility, with optional engine/trim
 - Cart
 - Checkout
 - Guest checkout
