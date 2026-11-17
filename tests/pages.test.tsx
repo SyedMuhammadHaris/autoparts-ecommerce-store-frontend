@@ -8,8 +8,8 @@ import { SiteHeader } from "@/components/site-header";
 it("communicates that ordering is not available yet", () => {
   render(<HomePage />);
   expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("The right part.");
-  expect(screen.getByText("Store in preparation")).toBeInTheDocument();
-  expect(screen.getByRole("link", { name: /a considered approach/i })).toHaveAttribute("href", "#our-approach");
+  expect(screen.getByText("Automotive parts · Pakistan")).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /explore parts/i })).toHaveAttribute("href", "/products");
 });
 
 it("provides a named home link", () => {

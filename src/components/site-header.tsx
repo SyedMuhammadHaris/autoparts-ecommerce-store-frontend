@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AccountNav } from "@/components/account-nav";
 
 export function SiteHeader() {
   return (
@@ -11,7 +12,7 @@ export function SiteHeader() {
           autoparts<span className="brand-dot">.</span>
         </span>
       </Link>
-      <span className="market-label">Built for Pakistan</span>
+      <AccountNav />
     </header>
   );
 }
