@@ -5,7 +5,9 @@ tokens, accessible base layout, error/loading/not-found states, and Jest with
 React Testing Library. The page clearly communicates that the store is in
 preparation for ordering. NextAuth/Simple JWT, optional email OTP, customer accounts, catalog
 listings/details/variants and a permission-aware catalog admin are implemented.
-Checkout remains Phase 3. See [Phase 2 review](docs/phase-2.md).
+Phase 3 adds carts, merging, quoted checkout, shipping configuration, private
+order confirmations and pending-order cancellation. See [Phase 3 review](docs/phase-3.md)
+and [Phase 2 review](docs/phase-2.md). Payment verification/fulfillment remain Phase 4.
 See [authentication migration](docs/authentication-migration.md) for current routes,
 required secrets and cookie/CSRF behavior, replacing the old Django-session flow.
 

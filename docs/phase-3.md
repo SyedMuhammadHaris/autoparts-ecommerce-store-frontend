@@ -45,4 +45,25 @@ payment and status history; owners can cancel a pending order. `/orders` lists
 only the signed-in customer's orders. Guest links require the original browser
 capability cookie and are not shareable access links. Losing/clearing that cookie
 loses guest access; no email recovery or email notification is claimed in Phase 3.
+Signing in retains capability-based access to earlier guest confirmation links,
+but does not silently claim those orders or add them to the account list.
 All private responses are no-store; cart/checkout/order pages are noindex.
+
+## Verification and review
+
+77 tests across 15 suites, lint, build, TypeScript and actual compiler server-only
+boundary passed in Docker. Real BFF guest/customer checkout and backend scheduled
+expiry/outbox consumption passed. Browser acceptance included synthetic COD
+placement and cancellation; 390px mobile confirmation had no horizontal overflow.
+Synthetic fixtures were removed; the authorized named backend test policy remains.
+
+Push and create your PR from this repository:
+
+```powershell
+git push -u origin phase-3
+gh pr create --base main --head phase-3 --title "Phase 3: storefront cart and checkout" --body-file docs/phase-3-pr.md
+```
+
+Merge after the backend Phase 3 PR/migrations. Configure intended delivery data
+and tax deliberately. Confirm both PR outcomes before starting Phase 4. No pushes,
+PR creation or deployment are automated.
