@@ -1,7 +1,7 @@
 # Work status
 
 - Current phase: Phase 2 complete/merged; approved authentication migration before Phase 3.
-- Current milestone: NextAuth Credentials and JWT BFF implemented and verified; implementation verified; user approved commits; PR review pending.
+- Current milestone: NextAuth Credentials and JWT BFF implemented and verified; implementation complete and committed; user PR review/merge pending.
 - Active branch: `refactor/authentication-migration`.
 - Baseline: User confirmed Phase 2 merges. Frontend main `1530b44` (PR #4); backend main synchronized to `73ff36b` (PR #6). Phase 3 unstarted.
 - Approved dependencies: next-auth 4.24.15, backend djangorestframework-simplejwt 5.5.1 and PyJWT 2.15.1, associated lockfiles and Docker builds. Existing dependency pins retained. No OAuth provider, mail library, adapter or new service.
@@ -13,6 +13,6 @@
 - Verification: Final 67 Jest tests across 12 suites passed in 6.004 seconds; ESLint, TypeScript, production build and compiler server-only boundary probe passed in Docker. Backend 77 tests passed on fresh disposable PostgreSQL, with no warnings.
 - Live acceptance: NextAuth CSRF/providers and unauthenticated 401 confirmed; catalog/account/stock/fitment smoke passed using NextAuth login/signout. Dedicated live test forced access refresh, coalesced parallel requests, rejected refresh replay, checked session non-disclosure and immediate backend revocation at signout. Disposable accounts/records/tokens removed, no real emails.
 - Limitations: NextAuth v4 maintenance mode, previously accepted ESLint 9 EOL. If revocation fails during an outage, local signout still removes the cookie but server credentials remain until expiry/revocation. No multi-replica refresh claim. Existing catalog admin/lookups limits and noindex remain.
-- Git/PR status: User approved focused commits in both repositories. Implementation is being committed; nothing pushed and no PR created. Matching backend PR merges first; update both contracts together and sign in again. Do not infer merge outcomes.
+- Git/PR status: User approved focused commits in both repositories. Frontend implementation committed as `488cb45`; backend implementation `617d67b`. Nothing pushed and no PR created. Matching backend PR merges first; update both contracts together and sign in again. Do not infer merge outcomes.
 - Important files: AGENTS.md, package manifests/lock, Dockerfile, env example, auth/account API routes, account/nav/forms, auth-options/auth-tokens/auth-session/request-body/proxy modules, types/next-auth.d.ts, tests and scripts/smoke-auth.mjs.
 - Next: User pushes and reviews the migration PRs after the approved commits. Wait for both outcomes and explicit approval before Phase 3.
