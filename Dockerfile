@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Explicitly approved dependency changes only. Exports just the lockfile.
 FROM base AS resolver
-COPY package.json ./
+COPY package.json package-lock.json ./
 RUN npm install --package-lock-only --ignore-scripts --no-audit --no-fund
 
 FROM scratch AS lockfile

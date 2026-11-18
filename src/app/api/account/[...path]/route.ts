@@ -1,11 +1,7 @@
 import { proxyApi } from "@/lib/server/proxy";
-
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-const routes: Record<string, string[]> = {
-  csrf: ["GET"], register: ["POST"], login: ["POST"], logout: ["POST"],
-  me: ["GET", "PATCH"], "verification/send": ["POST"], "verification/confirm": ["POST"],
-};
+const routes: Record<string, string[]> = { register: ["POST"], logout: ["POST"], me: ["GET", "PATCH"], "verification/send": ["POST"], "verification/confirm": ["POST"] };
 type Context = { params: Promise<{ path: string[] }> };
 async function handle(request: Request, context: Context) {
   const key = (await context.params).path.join("/");

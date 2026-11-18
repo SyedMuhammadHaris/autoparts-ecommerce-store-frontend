@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { useEffect, useState, type FormEvent } from "react";
 import { apiRequest, friendlyError, type User } from "@/lib/api";
 
@@ -11,7 +12,7 @@ export default function AccountPage() {
   const [saved, setSaved] = useState("");
   const [busy, setBusy] = useState(false);
   useEffect(() => {
-    const load = () => apiRequest<{ user: User }>("/api/auth/me").then(value => setUser(value.user)).catch(() => { setUser(null); setError("Sign in to view your account."); });
+    const load = () => apiRequest<{ user: User }>("/api/account/me").then(value => setUser(value.user)).catch(() => { setUser(null); setError("Sign in to view your account."); });
     void load(); window.addEventListener("pageshow", load);
     return () => window.removeEventListener("pageshow", load);
   }, []);
@@ -19,13 +20,13 @@ export default function AccountPage() {
     event.preventDefault(); setBusy(true); setError(""); setSaved("");
     const data = new FormData(event.currentTarget);
     try {
-      const result = await apiRequest<{ user: User }>("/api/auth/me", "PATCH", { name: data.get("name") });
+      const result = await apiRequest<{ user: User }>("/api/account/me", "PATCH", { name: data.get("name") });
       setUser(result.user); setSaved("Your name has been updated.");
     } catch (failure) { setError(friendlyError(failure)); } finally { setBusy(false); }
   }
   async function logout() {
     setBusy(true);
-    try { await apiRequest("/api/auth/logout", "POST", {}); router.push("/"); router.refresh(); }
+    try { await signOut({ redirect: false }); router.push("/"); router.refresh(); }
     catch (failure) { setError(friendlyError(failure)); setBusy(false); }
   }
   return <main id="main-content" className="form-page">

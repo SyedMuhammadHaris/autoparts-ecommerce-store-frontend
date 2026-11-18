@@ -125,6 +125,12 @@ Organize code by feature when that improves maintainability.
 
 ## 5. Development Principles
 
+> "Any fool can write code that a computer can understand. Good programmers write code that humans can understand." — Martin Fowler
+
+Write for the next reader: descriptive names, short focused functions/components,
+clear control flow and comments explaining decisions. Avoid dense expressions,
+oversized files, clever shortcuts and unnecessary abstractions.
+
 Follow:
 - Clean code
 - SOLID principles where appropriate
@@ -213,7 +219,10 @@ Do not silently swallow errors.
 
 ## 8. Authentication and Authorization
 
-Use the approved Django-backed session architecture with a Next.js backend-for-frontend (BFF) layer.
+Use NextAuth Credentials authentication with a Next.js backend-for-frontend (BFF)
+and Django Simple JWT. Django remains authoritative for users and permissions.
+Keep raw access/refresh tokens out of client session responses and localStorage;
+retain encrypted HttpOnly NextAuth cookies and protect browser mutations against CSRF.
 
 Requirements:
 - HttpOnly session cookies

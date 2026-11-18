@@ -3,9 +3,11 @@
 Phase 2 storefront: Next.js App Router, strict TypeScript, Tailwind
 tokens, accessible base layout, error/loading/not-found states, and Jest with
 React Testing Library. The page clearly communicates that the store is in
-preparation for ordering. Sessions, optional email OTP, customer accounts, catalog
+preparation for ordering. NextAuth/Simple JWT, optional email OTP, customer accounts, catalog
 listings/details/variants and a permission-aware catalog admin are implemented.
 Checkout remains Phase 3. See [Phase 2 review](docs/phase-2.md).
+See [authentication migration](docs/authentication-migration.md) for current routes,
+required secrets and cookie/CSRF behavior, replacing the old Django-session flow.
 
 ## Environment
 
@@ -14,6 +16,8 @@ Manually populate `.env.local` using `.env.example`:
 | Variable | Required | Purpose | Local example |
 | --- | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Yes | Public canonical site origin; used for metadata | `http://localhost:3000` |
+| `NEXTAUTH_URL` | Yes | Public authentication origin; must match site origin | `http://localhost:3000` |
+| `NEXTAUTH_SECRET` | Yes | Server-only cookie encryption secret | Generate at least 32 cryptographically random bytes, independently of backend signing key |
 | `BACKEND_API_URL` | Yes for BFF | Server-only Django base URL inside Compose | `http://backend:8000/api/v1` |
 | `BACKEND_API_TIMEOUT_MS` | Optional | Bounded request timeout, 100–15000 ms; default 5000 | `5000` |
 
@@ -66,7 +70,8 @@ returns `{ "status": "ok" }` when PostgreSQL and Redis are ready and a sanitized
 arbitrary destinations or untrusted request headers. Safe request IDs propagate
 through `X-Request-ID`; response/request caching and redirects are disabled.
 Timeouts and invalid upstream content are covered by tests. Phase 2 adds fixed
-auth/admin BFF routes with session cookies, exact-origin checks and CSRF protection.
+auth/admin BFF routes. NextAuth now manages encrypted session cookies; the BFF
+sends bearer credentials to Django, with exact-origin checks and CSRF protection.
 
 The backend client imports `server-only`, handled internally by Next.js without
 an added npm package. `npm run verify:boundary` creates a temporary Client

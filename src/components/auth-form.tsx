@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { useState, type FormEvent } from "react";
 import { apiRequest, friendlyError } from "@/lib/api";
 
@@ -14,11 +15,14 @@ export function AuthForm({ register = false }: { register?: boolean }) {
     setBusy(true); setError("");
     const fields = new FormData(event.currentTarget);
     try {
-      await apiRequest(`/api/auth/${register ? "register" : "login"}`, "POST", {
+      const credentials = {
         name: fields.get("name"), email: fields.get("email"), password: fields.get("password"),
-      });
+      };
+      if (register) await apiRequest("/api/account/register", "POST", credentials);
+      const result = await signIn("credentials", { email: credentials.email, password: credentials.password, redirect: false });
+      if (!result?.ok || result.error) throw new Error("Invalid sign-in");
       router.push(register ? "/verify-email" : "/account"); router.refresh();
-    } catch (failure) { setError(friendlyError(failure)); } finally { setBusy(false); }
+    } catch (failure) { setError(failure instanceof Error && failure.message === "Invalid sign-in" ? "Unable to sign in. Check your email/password, or try signing in if your account was just created." : friendlyError(failure)); } finally { setBusy(false); }
   }
   return <main id="main-content" className="form-page">
     <p className="eyebrow">Your Autoparts account</p>

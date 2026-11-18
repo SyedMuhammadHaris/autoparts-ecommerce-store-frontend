@@ -12,7 +12,7 @@ export async function apiRequest<T>(path: string, method = "GET", data?: unknown
     const csrfResponse = await fetch("/api/auth/csrf", { cache: "no-store", credentials: "same-origin" });
     if (!csrfResponse.ok) throw new ApiError("Unable to prepare the request. Please try again.", csrfResponse.status);
     const csrf = await csrfResponse.json();
-    headers["X-CSRFToken"] = csrf.csrf_token;
+    headers["X-CSRFToken"] = csrf.csrfToken;
     headers["Content-Type"] = "application/json";
   }
   const response = await fetch(path, {

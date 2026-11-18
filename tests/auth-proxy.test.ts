@@ -1,65 +1,69 @@
 /** @jest-environment node */
+import { createHash } from "node:crypto";
+import { encode } from "next-auth/jwt";
 import { proxyApi } from "@/lib/server/proxy";
-import { GET as authGet } from "@/app/api/auth/[...path]/route";
-import { GET as adminGet } from "@/app/api/admin/[...path]/route";
+import { GET as accountGet } from "@/app/api/account/[...path]/route";
 
 const originalFetch = global.fetch;
+const secret = "synthetic-nextauth-test-secret-" + "s".repeat(32);
+const csrf = "a".repeat(64);
+const hash = createHash("sha256").update(csrf + secret).digest("hex");
 beforeEach(() => {
   process.env.NEXT_PUBLIC_SITE_URL = "http://localhost:3000";
+  process.env.NEXTAUTH_URL = "http://localhost:3000";
+  process.env.NEXTAUTH_SECRET = secret;
   process.env.BACKEND_API_URL = "http://backend:8000/api/v1";
   global.fetch = jest.fn().mockResolvedValue(Response.json({ user: { id: 1 } }));
 });
 afterEach(() => { global.fetch = originalFetch; jest.restoreAllMocks(); });
-const token = "a".repeat(64);
-function mutation(origin = "http://localhost:3000", csrf = token, body = "{}") {
-  return new Request("http://localhost:3000/api/auth/login", { method: "POST", body, headers: { origin, "x-csrftoken": csrf, cookie: "sessionid=abc123; csrftoken=def456; secret=not-forwarded", authorization: "not-forwarded" } });
+async function request(method = "GET", origin = "http://localhost:3000", body = "{}", authenticated = true) {
+  const token = await encode({ token: { sub: "1", accessToken: "signed.access.jwt", refreshToken: "signed.refresh.jwt", accessExpiresAt: Math.floor(Date.now()/1000)+300, refreshExpiresAt: Math.floor(Date.now()/1000)+86400 }, secret });
+  return new Request("http://localhost:3000/api/account/me", { method, headers: { origin, "x-csrftoken": csrf, authorization: "Bearer attacker-token", cookie: `${authenticated ? `next-auth.session-token=${token}; ` : ""}next-auth.csrf-token=${encodeURIComponent(csrf + "|" + hash)}; sessionid=legacy; other=private` }, body: method === "GET" ? undefined : body });
 }
-it("forwards only session cookies and verified CSRF/origin headers to a fixed destination", async () => {
-  const response = await proxyApi(mutation(), "/auth/login/", ["POST"]);
+it("uses a decrypted NextAuth cookie to send only a bearer token to Django", async () => {
+  const response = await proxyApi(await request(), "/auth/me/", ["GET"]);
   expect(response.status).toBe(200);
   const [url, options] = (fetch as jest.Mock).mock.calls[0];
-  expect(url).toBe("http://backend:8000/api/v1/auth/login/");
-  expect(options).toMatchObject({ redirect: "error", cache: "no-store", headers: { Cookie: "sessionid=abc123; csrftoken=def456", Origin: "http://localhost:3000", "X-CSRFToken": token } });
-  expect(options.headers).not.toHaveProperty("authorization");
+  expect(url).toBe("http://backend:8000/api/v1/auth/me/");
+  expect(options.headers.Authorization).toBe("Bearer signed.access.jwt");
+  expect(options.headers.Cookie).toBeUndefined();
   expect(response.headers.get("cache-control")).toBe("no-store");
+  expect(response.headers.get("set-cookie")).toContain("HttpOnly");
+  expect(await response.text()).not.toContain("signed.access.jwt");
 });
-it.each([["https://evil.example", token], ["null", token], ["http://localhost:3000", ""]])("rejects foreign origins and missing CSRF before upstream calls", async (origin, csrf) => {
-  expect((await proxyApi(mutation(origin, csrf), "/auth/login/", ["POST"])).status).toBe(403);
+it("requires the cookie and ignores browser-provided bearer credentials", async () => {
+  expect((await proxyApi(await request("GET", undefined, undefined, false), "/auth/me/", ["GET"])).status).toBe(401);
+  expect(fetch).not.toHaveBeenCalled();
+});
+it("accepts an exact-origin mutation with signed double-submit CSRF", async () => {
+  expect((await proxyApi(await request("PATCH"), "/auth/me/", ["PATCH"])).status).toBe(200);
+});
+it("rejects forged CSRF and foreign origins before contacting Django", async () => {
+  const valid = await request("PATCH");
+  const headers = new Headers(valid.headers);
+  headers.set("x-csrftoken", "b".repeat(64));
+  expect((await proxyApi(new Request(valid, { headers }), "/auth/me/", ["PATCH"])).status).toBe(403);
+  expect((await proxyApi(await request("PATCH", "https://evil.example"), "/auth/me/", ["PATCH"])).status).toBe(403);
   expect(fetch).not.toHaveBeenCalled();
 });
 it.each(["not-json", "x".repeat(65537)])("rejects malformed and oversized bodies", async body => {
-  expect((await proxyApi(mutation(undefined, undefined, body), "/auth/login/", ["POST"])).status).toBe(400);
+  expect((await proxyApi(await request("PATCH", undefined, body), "/auth/me/", ["PATCH"])).status).toBe(400);
   expect(fetch).not.toHaveBeenCalled();
 });
-it("preserves separate HttpOnly cookies, removes domains and drops unrelated cookies", async () => {
-  const headers = new Headers();
-  headers.append("Set-Cookie", "sessionid=session; HttpOnly; Path=/; SameSite=Lax; Domain=backend");
-  headers.append("Set-Cookie", "csrftoken=csrf; HttpOnly; Path=/; SameSite=Lax");
-  headers.append("Set-Cookie", "other=discard; Path=/");
-  global.fetch = jest.fn().mockResolvedValue(Response.json({ user: {} }, { headers }));
-  const response = await proxyApi(mutation(), "/auth/login/", ["POST"]);
-  expect(response.headers.getSetCookie()).toEqual(["sessionid=session; HttpOnly; Path=/; SameSite=Lax", "csrftoken=csrf; HttpOnly; Path=/; SameSite=Lax"]);
+it("allows anonymous registration without exposing upstream cookies", async () => {
+  global.fetch = jest.fn().mockResolvedValue(Response.json({ user: {} }, { status: 201, headers: { "Set-Cookie": "sessionid=discard" } }));
+  const response = await proxyApi(await request("POST", undefined, "{}", false), "/auth/register/", ["POST"]);
+  expect(response.status).toBe(201);
+  expect(response.headers.get("set-cookie")).toBeNull();
 });
-it("preserves logout's cookie deletion and empty response", async () => {
-  global.fetch = jest.fn().mockResolvedValue(new Response(null, { status: 204, headers: { "Set-Cookie": "sessionid=; Max-Age=0; Path=/" } }));
-  const response = await proxyApi(mutation(), "/auth/logout/", ["POST"]);
-  expect(response.status).toBe(204);
-  expect(await response.text()).toBe("");
-  expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
+it("sanitizes backend failures", async () => {
+  global.fetch = jest.fn().mockResolvedValue(Response.json({ detail: "private-diagnostic" }, { status: 500 }));
+  const response = await proxyApi(await request(), "/auth/me/", ["GET"]);
+  expect(response.status).toBe(503);
+  expect(await response.text()).not.toContain("private-diagnostic");
 });
-it("sanitizes upstream diagnostics and propagates bounded rate-limit responses", async () => {
-  global.fetch = jest.fn().mockResolvedValue(Response.json({ password: "private-diagnostic" }, { status: 500 }));
-  const failed = await proxyApi(mutation(), "/auth/login/", ["POST"]);
-  expect(failed.status).toBe(503);
-  expect(await failed.text()).not.toContain("private-diagnostic");
-  global.fetch = jest.fn().mockResolvedValue(Response.json({ error: { message: "Wait" } }, { status: 429, headers: { "Retry-After": "60" } }));
-  expect((await proxyApi(mutation(), "/auth/login/", ["POST"])).headers.get("retry-after")).toBe("60");
-});
-it("rejects arbitrary auth/admin paths without contacting Django", async () => {
-  for (const path of [["https:", "evil.example"], ["products", "abc"], ["products", "1", "delete"]]) {
-    const response = await adminGet(new Request("http://localhost:3000/api/admin/x"), { params: Promise.resolve({ path }) });
-    expect(response.status).toBe(404);
-  }
-  expect((await authGet(new Request("http://localhost:3000/api/auth/x"), { params: Promise.resolve({ path: ["arbitrary"] }) })).status).toBe(404);
+it("rejects arbitrary account destinations", async () => {
+  const response = await accountGet(new Request("http://localhost:3000/api/account/x"), { params: Promise.resolve({ path: ["arbitrary"] }) });
+  expect(response.status).toBe(404);
   expect(fetch).not.toHaveBeenCalled();
 });
