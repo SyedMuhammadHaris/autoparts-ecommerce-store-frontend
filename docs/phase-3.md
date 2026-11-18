@@ -18,3 +18,11 @@ SameSite=Lax, Path=/, 30 days; Secure + __Host prefix on HTTPS. Only a hash is
 stored in PostgreSQL. Responses are no-store and vary by Cookie.
 
 No new dependencies or environment variables. Cart and checkout remain noindex.
+
+## Shipping administration
+
+The existing permission-aware admin adds shipping zones, cities, methods, rates
+and a singleton checkout policy. Create zones/methods before dependent records.
+Configure the tax percentage explicitly; a blank policy blocks checkout. The
+30-minute reservation default is editable. No real business rates are invented.
+`GET /api/shipping` proxies only the fixed public shipping-options endpoint.

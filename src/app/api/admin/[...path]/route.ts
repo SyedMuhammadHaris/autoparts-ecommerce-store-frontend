@@ -1,7 +1,7 @@
 import { proxyApi } from "@/lib/server/proxy";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-const resources = new Set(["categories", "brands", "products", "variants", "attributes", "attribute-values", "images", "inventory", "locations", "staff", "roles", "audit", "vehicle-makes", "vehicle-models", "vehicle-fitments", "product-fitments"]);
+const resources = new Set(["categories", "brands", "products", "variants", "attributes", "attribute-values", "images", "inventory", "locations", "staff", "roles", "audit", "vehicle-makes", "vehicle-models", "vehicle-fitments", "product-fitments", "cities", "shipping-zones", "shipping-methods", "shipping-rates", "checkout-policies"]);
 type Context = { params: Promise<{ path: string[] }> };
 async function handle(request: Request, context: Context) {
   const path = (await context.params).path;

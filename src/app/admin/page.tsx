@@ -9,6 +9,11 @@ type Field = { key: string; label: string; type?: string; source?: string; optio
 type Resource = { key: string; label: string; model: string; fields: Field[]; readonly?: boolean };
 const active = { key: "is_active", label: "Active", type: "checkbox" };
 const resources: Resource[] = [
+  { key: "shipping-zones", label: "Shipping zones", model: "shipping.shippingzone", fields: [{ key: "name", label: "Name" }, active] },
+  { key: "cities", label: "Cities", model: "shipping.city", fields: [{ key: "name", label: "Name" }, { key: "zone", label: "Shipping zone", source: "shipping-zones" }, active] },
+  { key: "shipping-methods", label: "Shipping methods", model: "shipping.shippingmethod", fields: [{ key: "name", label: "Name" }, active] },
+  { key: "shipping-rates", label: "Shipping rates", model: "shipping.shippingrate", fields: [{ key: "zone", label: "Shipping zone", source: "shipping-zones" }, { key: "method", label: "Shipping method", source: "shipping-methods" }, { key: "fee", label: "Delivery fee (PKR)", type: "money" }, active] },
+  { key: "checkout-policies", label: "Checkout policy", model: "shipping.checkoutpolicy", fields: [{ key: "name", label: "Name" }, { key: "tax_percent", label: "Tax on merchandise (%; enter 0 explicitly if applicable)", type: "decimal", optional: true }, { key: "reservation_minutes", label: "Reservation duration (5–1440 minutes)", type: "number" }, { key: "cod_enabled", label: "Enable Cash on Delivery", type: "checkbox" }, { key: "bank_transfer_enabled", label: "Enable Direct Bank Transfer", type: "checkbox" }] },
   { key: "products", label: "Products", model: "catalog.product", fields: [
     { key: "name", label: "Name" }, { key: "slug", label: "URL slug" }, { key: "sku", label: "SKU" },
     { key: "category", label: "Category", source: "categories" }, { key: "brand", label: "Brand", source: "brands", optional: true },
@@ -107,7 +112,7 @@ export default function AdminPage() {
   if (!user?.is_staff) return <main id="main-content" className="state-panel"><h1>Staff access required.</h1><p>Sign in with an authorized staff account.</p><Link href="/login">Sign in</Link></main>;
   return <main id="main-content" className="catalog-page">
     <p className="eyebrow">Store workspace</p><h1>Catalog management.</h1>
-    <p>Publish parts, maintain variants and record stock adjustments. Checkout follows in Phase 3.</p>
+    <p>Manage parts, inventory and checkout configuration. Shipping rates and tax policy must be explicitly configured before ordering.</p>
     <nav className="admin-tabs" aria-label="Management sections">{visible.map(item => <button className="secondary-button" aria-current={resourceKey === item.key ? "page" : undefined} key={item.key} onClick={() => chooseResource(item.key)}>{item.label}</button>)}</nav>
     {error && <p role="alert" className="form-error">{error} <button onClick={() => { setLoading(true); setRevision(value => value + 1); }}>Retry loading</button></p>}
     {notice && <p role="status">{notice}</p>}
@@ -118,6 +123,7 @@ export default function AdminPage() {
       <section className="admin-editor" key={`${resource.key}-${selected?.id ?? "new"}-${revision}`}><h2>{selected ? label(selected) : "New record"}</h2>
         {!resource.readonly ? <form onSubmit={save} className="panel-form">
           {resource.key === "products" && <p>Creating a product also creates its default variant and zero-stock inventory slot. Publish it with Active when ready.</p>}
+          {resource.key === "checkout-policies" && <p>Create one policy only. Leaving tax blank disables checkout. Tax is exclusive and applies to merchandise, excluding shipping. The default reservation is 30 minutes; configure your business policy deliberately. Payment verification and bank instructions follow in Phase 4.</p>}
           {resource.key === "images" && <p>Save a gallery image link. Selecting Primary replaces the current primary image. Storage uploads will be added after a provider is chosen.</p>}
           {resource.key === "product-fitments" && <p>Assign a variant to one or more vehicle year ranges. An active assignment sets its compatibility to Specific vehicles. Deactivate an incorrect assignment; it never becomes universal automatically.</p>}
           {resource.key === "vehicle-fitments" && <p>Record supported years and optional engine/trim details from verified part data. Blank engine or trim means unspecified.</p>}
@@ -126,7 +132,7 @@ export default function AdminPage() {
             const ids = field.key === "value_ids" ? ((selected?.values as Row[] | undefined) ?? []).map(item => String(item.id)) : undefined;
             return <label key={field.key}>{field.label}{field.source || field.choices ? <select name={field.key} required={!field.optional} multiple={field.type === "multiple"} defaultValue={ids ?? (value ? String(value) : field.choices?.[0]?.value ?? "")} disabled={!canWrite || busy || ((field.key === "product" || field.immutable) && !!selected)}>
               {field.type !== "multiple" && !field.choices && <option value="">{field.optional ? "None" : "Choose…"}</option>}{field.choices?.map(choice => <option key={choice.value} value={choice.value}>{choice.label}</option>)}{(choices[field.source ?? ""] ?? []).filter(row => !(resource.key === "categories" && row.id === selected?.id)).map(row => <option key={row.id} value={row.id}>{label(row)}</option>)}
-            </select> : field.type === "textarea" ? <textarea name={field.key} defaultValue={String(value ?? "")} maxLength={10000} disabled={!canWrite || busy} /> : <input name={field.key} type={field.type === "money" || field.type === "year" ? "number" : field.type ?? "text"} step={field.type === "money" ? ".01" : undefined} min={field.type === "year" ? 1900 : field.type === "money" || field.type === "number" ? 0 : undefined} max={field.type === "year" ? 2100 : undefined} required={!field.optional && field.type !== "checkbox"} defaultValue={field.type === "checkbox" ? undefined : String(value ?? (field.type === "number" ? 0 : ""))} defaultChecked={field.type === "checkbox" ? value === undefined ? field.key === "is_active" && resource.key !== "products" : Boolean(value) : undefined} disabled={!canWrite || busy} />}</label>;
+            </select> : field.type === "textarea" ? <textarea name={field.key} defaultValue={String(value ?? "")} maxLength={10000} disabled={!canWrite || busy} /> : <input name={field.key} type={["money", "decimal", "year"].includes(field.type ?? "") ? "number" : field.type ?? "text"} step={field.type === "money" ? ".01" : field.type === "decimal" ? ".001" : undefined} min={field.type === "year" ? 1900 : field.type === "money" || field.type === "number" ? 0 : undefined} max={field.type === "year" ? 2100 : undefined} required={!field.optional && field.type !== "checkbox"} defaultValue={field.type === "checkbox" ? undefined : String(value ?? (field.key === "reservation_minutes" ? 30 : field.type === "number" ? 0 : ""))} defaultChecked={field.type === "checkbox" ? value === undefined ? field.key === "is_active" && resource.key !== "products" : Boolean(value) : undefined} disabled={!canWrite || busy} />}</label>;
           })}
           {canWrite ? <button className="primary-button" disabled={busy || loading}>{busy ? "Saving…" : "Save changes"}</button> : <p>You have read access to this section.</p>}
         </form> : resource.key === "inventory" && selected ? permission(user, resource.model, "change") ? <form className="panel-form" onSubmit={save} onChange={() => setOperationKey(crypto.randomUUID())}>

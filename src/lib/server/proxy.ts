@@ -41,7 +41,7 @@ export async function proxyApi(request: Request, endpoint: string, allowedMethod
     const commerce = endpoint.startsWith("/cart/") || endpoint.startsWith("/checkout/") || endpoint.startsWith("/orders/");
     const guest = commerce ? cartCookie(request) : undefined;
     if (guest) headers["X-Cart-Token"] = guest.token;
-    const anonymous = endpoint === "/auth/register/" || endpoint.startsWith("/catalog/");
+    const anonymous = endpoint === "/auth/register/" || endpoint.startsWith("/catalog/") || endpoint === "/shipping/options/";
     if (!anonymous && (!commerce || hasAuthCookie(request))) {
       state = await readAuthState(request);
       headers.Authorization = `Bearer ${state.accessToken}`;
