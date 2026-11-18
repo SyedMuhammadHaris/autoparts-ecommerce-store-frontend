@@ -46,7 +46,7 @@ it("shows variant-specific fitment and never labels unknown compatibility univer
   expect(screen.getByText(/Universal fit —/)).toBeInTheDocument();
 });
 it("offers fitment administration only with the corresponding permissions", async () => {
-  request.mockImplementation((path: string) => Promise.resolve(path === "/api/auth/me" ? { user: { is_staff: true, is_superuser: false, permissions: ["catalog.view_vehiclemake", "catalog.add_vehiclemake"] } } : { results: [], next: null }));
+  request.mockImplementation((path: string) => Promise.resolve(path === "/api/account/me" ? { user: { is_staff: true, is_superuser: false, permissions: ["catalog.view_vehiclemake", "catalog.add_vehiclemake"] } } : { results: [], next: null }));
   render(<AdminPage />);
   await waitFor(() => expect(screen.getByText("No records yet.")).toBeInTheDocument());
   expect(screen.getByRole("button", { name: "Vehicle makes" })).toBeInTheDocument();

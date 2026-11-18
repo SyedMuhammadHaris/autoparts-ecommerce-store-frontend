@@ -1,11 +1,11 @@
-# Phase 2 push and review
+# Authentication migration push and review
 
-Run these yourself from PowerShell:
+After approving commits and after they are created, run these yourself from PowerShell:
 
 ```powershell
 Set-Location D:\autoparts-emcommerce-store\autoparts-ecommerce-store-frontend
-git push -u origin feat/phase-2
-gh pr create --base main --head feat/phase-2 --title "Phase 2: accounts, storefront catalog and initial admin" --body-file docs/PR_DESCRIPTION.md
+git push -u origin refactor/authentication-migration
+gh pr create --base main --head refactor/authentication-migration --title "Integrate NextAuth Credentials with JWT-backed account APIs" --body-file docs/PR_DESCRIPTION.md
 ```
 
 If GitHub CLI is unavailable, push with Git and open a PR on GitHub using the

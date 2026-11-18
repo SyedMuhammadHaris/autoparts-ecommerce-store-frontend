@@ -11,13 +11,13 @@ export default function VerifyEmailPage() {
   const [busy, setBusy] = useState(false);
   async function send() {
     setBusy(true); setError("");
-    try { await apiRequest("/api/auth/verification/send", "POST", {}); setMessage("Delivery requested. Check your email; the code expires in 10 minutes. Wait 60 seconds before resending."); }
+    try { await apiRequest("/api/account/verification/send", "POST", {}); setMessage("Delivery requested. Check your email; the code expires in 10 minutes. Wait 60 seconds before resending."); }
     catch (failure) { setError(friendlyError(failure) + " You can skip verification."); } finally { setBusy(false); }
   }
   async function confirm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setBusy(true); setError("");
     const fields = new FormData(event.currentTarget);
-    try { await apiRequest("/api/auth/verification/confirm", "POST", { code: fields.get("code") }); router.push("/account"); router.refresh(); }
+    try { await apiRequest("/api/account/verification/confirm", "POST", { code: fields.get("code") }); router.push("/account"); router.refresh(); }
     catch (failure) { setError(friendlyError(failure)); } finally { setBusy(false); }
   }
   return <main id="main-content" className="form-page">

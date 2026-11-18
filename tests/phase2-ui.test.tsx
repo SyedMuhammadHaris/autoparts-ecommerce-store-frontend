@@ -6,6 +6,7 @@ import AdminPage from "@/app/admin/page";
 import { apiRequest, ApiError } from "@/lib/api";
 jest.mock("@/lib/api", () => ({ ...jest.requireActual("@/lib/api"), apiRequest: jest.fn() }));
 jest.mock("next/navigation", () => ({ useRouter: () => ({ push: jest.fn(), refresh: jest.fn() }) }));
+jest.mock("next-auth/react", () => ({ signIn: jest.fn().mockResolvedValue({ ok: true }), signOut: jest.fn().mockResolvedValue({}) }));
 const request = apiRequest as jest.Mock;
 beforeEach(() => request.mockReset());
 it("shows signup fields and useful server validation without storing credentials", async () => {
@@ -16,7 +17,7 @@ it("shows signup fields and useful server validation without storing credentials
   fireEvent.change(screen.getByLabelText("Password"), { target: { value: "password" } });
   fireEvent.click(screen.getByRole("button", { name: "Create account" }));
   expect(await screen.findByRole("alert")).toHaveTextContent("This password is too common.");
-  expect(request).toHaveBeenCalledWith("/api/auth/register", "POST", { name: "Customer", email: "customer@example.com", password: "password" });
+  expect(request).toHaveBeenCalledWith("/api/account/register", "POST", { name: "Customer", email: "customer@example.com", password: "password" });
   expect(localStorage.length).toBe(0);
 });
 it("keeps verification skippable when SMTP delivery is disabled", async () => {
@@ -44,7 +45,7 @@ it("denies customer access to the management workspace", async () => {
   expect(request).toHaveBeenCalledTimes(1);
 });
 it("shows only permitted management sections and no save control for read-only staff", async () => {
-  request.mockImplementation((path: string) => Promise.resolve(path === "/api/auth/me" ? { user: { is_staff: true, is_superuser: false, permissions: ["catalog.view_product"] } } : { results: [], next: null }));
+  request.mockImplementation((path: string) => Promise.resolve(path === "/api/account/me" ? { user: { is_staff: true, is_superuser: false, permissions: ["catalog.view_product"] } } : { results: [], next: null }));
   render(<AdminPage />);
   await waitFor(() => expect(screen.getByText("No records yet.")).toBeInTheDocument());
   expect(screen.getByRole("button", { name: "Products" })).toBeInTheDocument();

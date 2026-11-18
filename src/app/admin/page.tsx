@@ -66,7 +66,7 @@ export default function AdminPage() {
   const visible = user?.is_staff ? resources.filter(item => item.key === "staff" ? user.is_superuser : permission(user, item.model, "view")) : [];
   const canWrite = !!user && permission(user, resource.model, selected ? "change" : "add");
 
-  useEffect(() => { let live = true; apiRequest<{ user: User }>("/api/auth/me").then(result => { if (live) { setUser(result.user); const first = resources.find(item => item.key === "staff" ? result.user.is_superuser : permission(result.user, item.model, "view")); if (first) setResourceKey(first.key); } }).catch(() => { if (live) setUser(null); }); return () => { live = false; }; }, []);
+  useEffect(() => { let live = true; apiRequest<{ user: User }>("/api/account/me").then(result => { if (live) { setUser(result.user); const first = resources.find(item => item.key === "staff" ? result.user.is_superuser : permission(result.user, item.model, "view")); if (first) setResourceKey(first.key); } }).catch(() => { if (live) setUser(null); }); return () => { live = false; }; }, []);
   useEffect(() => {
     if (!user?.is_staff || !(resource.key === "staff" ? user.is_superuser : permission(user, resource.model, "view"))) return;
     let live = true;

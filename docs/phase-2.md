@@ -1,5 +1,9 @@
 # Phase 2 review
 
+The session-authentication sections below describe the original Phase 2 milestone.
+The approved [authentication migration](authentication-migration.md) supersedes
+them with NextAuth/Simple JWT before Phase 3.
+
 The backend Phase 2 PR must merge first. Use the backend-owned Compose stack and
 apply its migrations/bootstrap command as described in backend `docs/phase-2.md`.
 No frontend environment variables or package versions changed. Private `.env.local`
