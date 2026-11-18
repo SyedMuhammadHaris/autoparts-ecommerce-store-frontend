@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { apiRequest, type User } from "@/lib/api";
+import { CartLink } from "@/features/cart/cart-link";
 
 export function AccountNav() {
   const pathname = usePathname();
@@ -12,6 +13,7 @@ export function AccountNav() {
   }, [pathname]);
   return <nav className="account-nav" aria-label="Main navigation">
     <Link href="/products">Shop parts</Link>
+    <CartLink />
     {user?.is_staff && <Link href="/admin">Administration</Link>}
     <Link href={user ? "/account" : "/login"}>{user ? "My account" : "Sign in"}</Link>
   </nav>;

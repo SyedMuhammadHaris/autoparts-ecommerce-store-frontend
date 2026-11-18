@@ -6,6 +6,7 @@ import type { JWT } from "next-auth/jwt";
 import { checkBrowserMutation, readAuthState, setAuthCookie } from "@/lib/server/auth-session";
 import { SessionEnded } from "@/lib/server/auth-tokens";
 import { limitedBody } from "@/lib/server/request-body";
+import { cartCookie, hasAuthCookie } from "@/lib/server/cart-cookie";
 
 function errorResponse(status: number, requestId: string, code: string, message: string) {
   return Response.json({ error: { code, message, details: {} }, request_id: requestId }, {
@@ -37,8 +38,11 @@ export async function proxyApi(request: Request, endpoint: string, allowedMethod
       }
     }
     let state: JWT | undefined;
+    const commerce = endpoint.startsWith("/cart/") || endpoint.startsWith("/checkout/") || endpoint.startsWith("/orders/");
+    const guest = commerce ? cartCookie(request) : undefined;
+    if (guest) headers["X-Cart-Token"] = guest.token;
     const anonymous = endpoint === "/auth/register/" || endpoint.startsWith("/catalog/");
-    if (!anonymous) {
+    if (!anonymous && (!commerce || hasAuthCookie(request))) {
       state = await readAuthState(request);
       headers.Authorization = `Bearer ${state.accessToken}`;
     }
@@ -61,6 +65,7 @@ export async function proxyApi(request: Request, endpoint: string, allowedMethod
     const payload = await upstream.json();
     if (!upstream.ok && payload?.error) payload.request_id = requestId;
     const response = Response.json(payload, { status: upstream.status, headers: responseHeaders });
+    if (guest) response.headers.append("Set-Cookie", guest.header);
     if (state && upstream.ok) await setAuthCookie(response, state);
     return response;
   } catch (failure) {

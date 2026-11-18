@@ -108,3 +108,8 @@ table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 20p
 td, th { padding: 12px 8px; text-align: left; border-bottom: 1px solid #b9c0b9; overflow-wrap: anywhere; }
 select[multiple] { min-height: 120px; }
 @media(max-width:1000px) { .admin-layout { grid-template-columns: 1fr; } }
+.cart-row { display: grid; grid-template-columns: 2fr 1fr 1fr; align-items: center; gap: 24px; padding: 24px 0; border-bottom: 1px solid #b9c0b9; }
+.cart-row h2 { font-size: 24px; }
+.cart-summary { padding: 32px 0; display: grid; gap: 16px; justify-items: start; }
+.primary-button { text-decoration: none; }
+@media(max-width:700px) { .cart-row { grid-template-columns: 1fr; gap: 8px; } }

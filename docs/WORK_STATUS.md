@@ -1,8 +1,10 @@
 # Work status
 
-- Current phase: Phase 2 complete/merged; approved authentication migration before Phase 3.
-- Current milestone: NextAuth Credentials and JWT BFF implemented and verified; implementation complete and committed; user PR review/merge pending.
-- Active branch: `refactor/authentication-migration`.
+- Current phase: Phase 3 approved; user confirmed both authentication PRs merged.
+- Current milestone: Guest/customer cart, product add, cart page, count and sign-in merge implemented. Cart verification: 70 tests across 13 suites passed; lint passed. Shipping/checkout next.
+- Active branch: `phase-3` (user requested one branch with feature commits).
+- Phase 3 dependencies/environment: No additions. Existing private files untouched; existing configured Docker services used.
+- Phase 3 PR status: Unpushed; no PR created.
 - Baseline: User confirmed Phase 2 merges. Frontend main `1530b44` (PR #4); backend main synchronized to `73ff36b` (PR #6). Phase 3 unstarted.
 - Approved dependencies: next-auth 4.24.15, backend djangorestframework-simplejwt 5.5.1 and PyJWT 2.15.1, associated lockfiles and Docker builds. Existing dependency pins retained. No OAuth provider, mail library, adapter or new service.
 - Completed work: NextAuth Credentials sign-in and encrypted HttpOnly cookie; Django bearer authorization; /api/auth/* reserved for NextAuth, account/verification/register routes under /api/account/*; current user/roles still from Django. Signup signs in before optional verification; skipping OTP still works. NextAuth signout revokes backend session then removes cookie.
