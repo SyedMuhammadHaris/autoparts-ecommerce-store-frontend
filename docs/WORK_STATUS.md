@@ -1,7 +1,7 @@
 # Work status
 
 - Current phase: Phase 3 approved; user confirmed both authentication PRs merged.
-- Current milestone: Cart committed; shipping/configuration admin added. All 70 tests across 13 suites, lint, production build and TypeScript passed inside Docker. Checkout next.
+- Current milestone: Cart/shipping committed; checkout, quote review, interrupted-request recovery, customer order list, private confirmation and cancellation implemented. All 77 tests across 15 suites, lint, production build and TypeScript passed inside Docker. Backend scheduling/live verification next.
 - Active branch: `phase-3` (user requested one branch with feature commits).
 - Phase 3 dependencies/environment: No additions. Existing private files untouched; existing configured Docker services used.
 - Phase 3 PR status: Unpushed; no PR created.

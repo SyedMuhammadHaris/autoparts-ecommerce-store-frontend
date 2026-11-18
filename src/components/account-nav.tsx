@@ -14,6 +14,7 @@ export function AccountNav() {
   return <nav className="account-nav" aria-label="Main navigation">
     <Link href="/products">Shop parts</Link>
     <CartLink />
+    {user && <Link href="/orders">Orders</Link>}
     {user?.is_staff && <Link href="/admin">Administration</Link>}
     <Link href={user ? "/account" : "/login"}>{user ? "My account" : "Sign in"}</Link>
   </nav>;
