@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { apiAction, clientFetch, ApiError, friendlyError } from "@/lib/api";
 import { useApiQuery } from "@/lib/query/hooks";
 import { checkoutSchema, type CheckoutValues } from "@/lib/forms/schemas";
-import { FormErrors } from "@/lib/forms/form-errors";
+import { CheckoutForm } from "./checkout-form";
 import { priceLabel } from "@/lib/catalog-types";
 import type { Cart } from "@/features/cart/types";
 import { Totals } from "./totals";
@@ -78,20 +78,7 @@ export function CheckoutPage() {
     <p>Continue as a guest or <Link href="/login">sign in</Link> to keep orders in your account. Email verification is optional.</p>
     {error && <p role="alert" className="form-error">{friendlyError(error)}</p>}
     {!canLoad ? <>{recovery.error ? <p role="alert">Unable to confirm your previous checkout. Check its status before placing another order.</p> : <p role="status">Checking previous checkout…</p>}<button className="secondary-button" disabled={recovery.isFetching} onClick={() => recovery.refetch()}>Check previous order status</button></> : !cart || !options ? <><p role="status">Loading checkout…</p>{error && <button onClick={() => { void cartQuery.refetch(); void optionsQuery.refetch(); }}>Retry loading</button>}</> : !cart.items.length ? <p>Your cart is empty. <Link href="/products">Explore parts</Link></p> : !options.configured || !options.cities.length || !options.rates.length || !options.payment_methods.length ? <p role="status">Ordering is temporarily unavailable while the store configures delivery and its tax/payment policy. Your cart is saved.</p> : <div className="checkout-layout">
-      <form noValidate className="panel-form" onSubmit={form.handleSubmit(values => review.mutate(values))} onChange={() => { if (!pending) { review.reset(); place.reset(); } }}>
-        <fieldset disabled={busy || !!pending}><legend>Delivery details · Pakistan</legend>
-          <label>Full name<input {...form.register("name")} autoComplete="name" aria-invalid={!!form.formState.errors.name} maxLength={120} /></label>
-          <label>Email<input {...form.register("email")} type="email" autoComplete="email" aria-invalid={!!form.formState.errors.email} maxLength={254} /></label>
-          <label>Phone<input {...form.register("phone")} type="tel" autoComplete="tel" aria-invalid={!!form.formState.errors.phone} maxLength={25} /></label>
-          <label>Address line 1<input {...form.register("line1")} autoComplete="address-line1" aria-invalid={!!form.formState.errors.line1} maxLength={250} /></label>
-          <label>Address line 2 (optional)<input {...form.register("line2")} autoComplete="address-line2" maxLength={250} /></label>
-          <label>Postal code (optional)<input {...form.register("postal_code")} autoComplete="postal-code" maxLength={20} /></label>
-          <label>City<select {...form.register("city", { onChange: () => form.setValue("shipping_rate", "") })} aria-invalid={!!form.formState.errors.city}><option value="">Choose city</option>{options.cities.map(value => <option value={value.id} key={value.id}>{value.name}</option>)}</select></label>
-          <label>Delivery method<select {...form.register("shipping_rate")} aria-invalid={!!form.formState.errors.shipping_rate}><option value="">Choose delivery</option>{options.rates.filter(value => value.zone_id === zone).map(value => <option value={value.id} key={value.id}>{value.name} · {priceLabel(value.fee)}</option>)}</select></label>
-          <label>Payment method<select {...form.register("payment_method")} aria-invalid={!!form.formState.errors.payment_method}><option value="">Choose payment</option>{options.payment_methods.map(value => <option value={value.id} key={value.id}>{value.name}</option>)}</select></label>
-          <FormErrors errors={form.formState.errors} /><button className="secondary-button" disabled={busy}>Review final total</button>
-        </fieldset>
-      </form>
+      <CheckoutForm form={form} options={options} zone={zone} busy={busy} locked={!!pending} onReview={values => review.mutate(values)} onChange={() => { if (!pending) { review.reset(); place.reset(); } }} />
       <section className="checkout-review"><h2>Order review</h2><ul>{cart.items.map(item => <li key={item.variant}>{item.name} · {item.sku} × {item.quantity}</li>)}</ul>
         {quote ? <><Totals amounts={quote} /><p>Quote valid for 10 minutes. Stock is reserved for {quote.reservation_minutes} minutes after ordering. Pending orders expire automatically if they are not confirmed.</p><p>{review.data?.body.payment_method === "cod" ? "Payment remains pending collection. No charge is made online." : "Payment remains awaiting transfer. Bank instructions and verification are handled in Phase 4; placing an order does not mark it paid."}</p>
           <button className="primary-button" disabled={busy} onClick={submitOrder}>{busy ? "Placing order…" : pending ? "Retry the same order" : `Place order · ${priceLabel(quote.total)}`}</button>

@@ -121,6 +121,13 @@ Do not create empty directories or unnecessary abstractions merely to match it.
 
 Organize code by feature when that improves maintainability.
 
+Keep `app/**/page.tsx` files thin: render feature components and retain only
+Next.js route configuration and metadata exports. Move fetching, state, event
+handlers and page UI into descriptively named feature components or hooks.
+Each form belongs in its own component file. Share an existing form when its
+behavior is the same rather than duplicating it for each route. Keep server
+fetching in Server Components and interactive forms in Client Components.
+
 ---
 
 ## 5. Development Principles

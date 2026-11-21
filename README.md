@@ -12,6 +12,8 @@ See [forms/API migration](docs/forms-api-migration.md) for React Hook Form, Zod,
 TanStack Query, shared client/server fetchers and the current response contract.
 See [toast notifications](docs/toast-notifications.md) for shared API success/error
 messages, action-specific fallbacks and notification lifecycle.
+See [page components](docs/page-components.md) for thin route wrappers and separate
+feature/form components.
 See [authentication migration](docs/authentication-migration.md) for current routes,
 required secrets and cookie/CSRF behavior, replacing the old Django-session flow.
 
