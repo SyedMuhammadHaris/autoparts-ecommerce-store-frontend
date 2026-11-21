@@ -44,3 +44,20 @@ build, TypeScript and server-only boundary checks passed. No visual browser QA.
 Returns and refunds follow in separate commits. Private
 proof uploads require the user's storage choice and remain pending; no public
 proof-link workaround is introduced. No deployment or external courier integration.
+
+## Returns
+
+Delivered/completed owned order pages show the explicit return policy, remaining
+line quantities and request decisions. ReturnForm has per-line quantities/reason
+and retains its idempotency key for identical retries. No policy/window/refund
+rules are invented; returns stay unavailable until staff explicitly enables them.
+
+`/admin/returns` separates listing, review and inspection components/forms.
+Review approval does not restock; inspection requires an explicit sellable
+quantity for every line, including 0 for damaged stock. Returns and monetary
+refunds remain separate. Staff policy fields appear in the existing audited admin.
+Nested form errors now render for quantity arrays as well as simple fields.
+
+125 tests passed across 24 suites; lint, build, TypeScript and server boundary
+checks passed. Backend migrations and roles applied, no policy or real returns
+seeded. Refund ledger is the next feature commit.

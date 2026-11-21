@@ -2,11 +2,11 @@
 
 - Current phase: Phase 4. Previous page/component PR merged by user confirmation; local main baseline 857d1e2.
 - Active branch: `phase-4` in both repositories; feature-wise commits authorized by user.
-- Current milestone: Payment management committed def7217; fulfillment/tracking implemented and verified, ready for its feature commit.
+- Current milestone: Payment def7217 and fulfillment d40455a committed. Returns implemented and verified, ready for its feature commit.
 - Completed: Customer transfer instructions/reference form and review status, staff payment workspace, bank-account admin, separate forms and thin pages, allowlisted BFF routes.
 - Dependencies/configuration: No new dependencies, lockfile changes or environment variables. Private environment files not opened or changed.
-- Verification: 121 tests across 23 suites, lint, production build, TypeScript and server boundary checks passed. No new browser visual QA performed.
-- Pending: Returns/refunds and final verification. Return policy input requested; private payment proof uploads await user's storage decision.
+- Verification: 125 tests across 24 suites, lint, production build, TypeScript and server boundary checks passed. No new browser visual QA performed.
+- Pending: Refund ledger and final verification. Explicit return policy/capped manual refunds approved; private proof uploads await user's storage decision.
 - PR status: Phase 4 unpushed; user reviews and merges. Backend payment migration/role bootstrap required before frontend use.
 - Details: docs/phase-4.md.
 
