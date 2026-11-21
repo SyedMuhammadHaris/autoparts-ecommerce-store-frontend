@@ -36,7 +36,7 @@ it("changes the displayed variant price and stock without enabling ordering", ()
   fireEvent.change(screen.getByLabelText("Product option"), { target: { value: "2" } });
   expect(screen.getByText("Out of stock")).toBeInTheDocument();
   expect(screen.getByText(/200/)).toBeInTheDocument();
-  expect(screen.queryByRole("button", { name: /cart/i })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /add to cart/i })).toBeDisabled();
 });
 it("denies customer access to the management workspace", async () => {
   request.mockResolvedValue({ user: { is_staff: false, permissions: [] } });

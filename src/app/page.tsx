@@ -31,7 +31,7 @@ export default function HomePage() {
         </div>
         <p>
           We’re building a clear, considered way to explore automotive parts.
-          Browse product options and availability. Online ordering will follow with checkout.
+          Browse product options and availability, build your cart and review delivery at checkout.
         </p>
       </section>
     </main>

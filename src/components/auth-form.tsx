@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useState, type FormEvent } from "react";
 import { apiRequest, friendlyError } from "@/lib/api";
+import { cartChanged } from "@/features/cart/types";
 
 export function AuthForm({ register = false }: { register?: boolean }) {
   const router = useRouter();
@@ -21,6 +22,8 @@ export function AuthForm({ register = false }: { register?: boolean }) {
       if (register) await apiRequest("/api/account/register", "POST", credentials);
       const result = await signIn("credentials", { email: credentials.email, password: credentials.password, redirect: false });
       if (!result?.ok || result.error) throw new Error("Invalid sign-in");
+      await apiRequest("/api/cart/merge", "POST", {});
+      cartChanged();
       router.push(register ? "/verify-email" : "/account"); router.refresh();
     } catch (failure) { setError(failure instanceof Error && failure.message === "Invalid sign-in" ? "Unable to sign in. Check your email/password, or try signing in if your account was just created." : friendlyError(failure)); } finally { setBusy(false); }
   }
