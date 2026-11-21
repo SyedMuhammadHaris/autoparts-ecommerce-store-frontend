@@ -5,6 +5,7 @@ import { friendlyError } from "@/lib/api";
 import { priceLabel } from "@/lib/catalog-types";
 import { Totals } from "./totals";
 import type { Order } from "./types";
+import { PaymentPanel } from "@/features/payments/payment-panel";
 
 export function OrderPage({ reference }: { reference: string }) {
   const query = useApiQuery<Order>({ path: "/api/orders/{reference}", pathParams: { reference } });
@@ -15,6 +16,7 @@ export function OrderPage({ reference }: { reference: string }) {
     {error && <p role="alert" className="form-error">{friendlyError(error)} <button onClick={() => query.refetch()}>Refresh order</button></p>}
     {query.isPending && !error && <p role="status">Loading order…</p>}
     {order && <><p>Reference: <strong>{order.reference}</strong></p><p>Status: {order.status} · Payment: {order.payment.status.replaceAll("_", " ")}</p>
+      {order.payment.method === "bank_transfer" && <PaymentPanel reference={reference} status={order.status} />}
       {order.status === "pending" && <p>Your order is pending confirmation. Its stock reservation expires at {new Date(order.expires_at).toLocaleString("en-PK")}. Payment is not marked collected or verified.</p>}
       <div className="checkout-layout"><section><h2>Items</h2><ul>{order.items.map(item => <li key={item.sku}>{item.name} · {item.sku} × {item.quantity} · {priceLabel(item.line_total)}</li>)}</ul><Totals amounts={order} /></section>
         <section><h2>Delivery</h2><p>{order.address.name}<br />{order.address.line1}<br />{order.address.line2}<br />{order.address.city} {order.address.postal_code} · {order.address.country}</p><p>{order.shipping_method}</p><p>{order.address.email}<br />{order.address.phone}</p>

@@ -1,5 +1,18 @@
 # Work status
 
+- Current phase: Phase 4. Previous page/component PR merged by user confirmation; local main baseline 857d1e2.
+- Active branch: `phase-4` in both repositories; feature-wise commits authorized by user.
+- Current milestone: Payment management implemented and verified; feature commit authorized.
+- Completed: Customer transfer instructions/reference form and review status, staff payment workspace, bank-account admin, separate forms and thin pages, allowlisted BFF routes.
+- Dependencies/configuration: No new dependencies, lockfile changes or environment variables. Private environment files not opened or changed.
+- Verification: 117 tests, lint, production build, TypeScript and server boundary checks passed.
+- Pending: Fulfillment/tracking, returns/refunds, final verification. Private payment proof uploads await user's storage decision.
+- PR status: Phase 4 unpushed; user reviews and merges. Backend payment migration/role bootstrap required before frontend use.
+- Details: docs/phase-4.md.
+
+## Historical work status
+
+
 - Current phase: Phases 1–3 merged by user confirmation. Approved pre-Phase-4 forms/API/response refactor implemented and verified.
 - Current milestone: Page/component separation implemented and verified; user approved the focused commit. Forms/API/toast PR merged by user confirmation.
 - Active branch: Frontend `refactor/page-components`; backend unchanged.
