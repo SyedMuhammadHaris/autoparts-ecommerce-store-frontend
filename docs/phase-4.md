@@ -27,8 +27,20 @@ bank transfer is unavailable when no active account is configured.
 Production build, lint and TypeScript passed for the feature. All 117 tests passed, including payment UI and proxy-route checks. No native-browser
 visual QA or live transfer/upload has been performed.
 
-## Pending
+## Fulfillment and tracking
 
-Fulfillment/tracking, returns and refunds follow in separate commits. Private
+`/admin/fulfillment` has a paginated permission-aware list and focused review/form
+components. Staff see only the next permitted transition; shipment requires carrier
+and tracking reference. Completion is unavailable until payment is recorded.
+Owned order pages show carrier, tracking reference and shipped/delivered events.
+No public tracking endpoint, courier network call or customer data is introduced.
+
+121 tests across 23 suites passed, including shipping field validation, completion
+payment gating, customer access denial and strict BFF allowlists. Lint, production
+build, TypeScript and server-only boundary checks passed. No visual browser QA.
+
+## Remaining Phase 4 scope
+
+Returns and refunds follow in separate commits. Private
 proof uploads require the user's storage choice and remain pending; no public
 proof-link workaround is introduced. No deployment or external courier integration.

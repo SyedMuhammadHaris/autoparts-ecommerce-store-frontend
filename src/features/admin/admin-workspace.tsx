@@ -49,6 +49,7 @@ export function AdminWorkspace() {
   return <main id="main-content" className="catalog-page"><p className="eyebrow">Store workspace</p><h1>Catalog management.</h1>
     <p>Manage parts, inventory and checkout configuration. Shipping rates and tax policy must be explicitly configured before ordering.</p>
     {(user.is_superuser || user.permissions.includes("payments.view_payment")) && <p><Link href="/admin/payments">Manage payments</Link></p>}
+    {(user.is_superuser || user.permissions.includes("orders.view_order")) && <p><Link href="/admin/fulfillment">Manage fulfillment</Link></p>}
     <nav className="admin-tabs" aria-label="Management sections">{visible.map(item => <button className="secondary-button" aria-current={resource.key === item.key ? "page" : undefined} key={item.key} onClick={() => chooseResource(item.key)}>{item.label}</button>)}</nav>
     {error && <p role="alert" className="form-error">{friendlyError(error)} <button onClick={() => queries.forEach(query => { void query.refetch(); })}>Retry loading</button></p>}
     {notice && <p role="status">{notice}</p>}

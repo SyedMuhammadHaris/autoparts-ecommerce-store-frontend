@@ -6,6 +6,12 @@ const resources = new Set(["categories", "brands", "products", "variants", "attr
 type Context = { params: Promise<{ path: string[] }> };
 async function handle(request: Request, context: Context) {
   const path = (await context.params).path;
+  if (path[0] === "fulfillment") {
+    if (path.length > 2 || path[1] && !/^[1-9][0-9]*$/.test(path[1])) return routeErrorResponse(404, "Not found.", "NOT_FOUND");
+    const page = new URL(request.url).searchParams.get("page");
+    const query = path.length === 1 && page && /^[1-9][0-9]{0,8}$/.test(page) ? `?page=${page}` : "";
+    return proxyApi(request, `/admin/${path.join("/")}/${query}`, path[1] ? ["GET", "POST"] : ["GET"]);
+  }
   if (path[0] === "payments") {
     if (path.length > 3 || path[1] && !/^[1-9][0-9]*$/.test(path[1]) || path[2] && !["verify", "confirm-cod", "collect-cod"].includes(path[2])) return routeErrorResponse(404, "Not found.", "NOT_FOUND");
     const page = new URL(request.url).searchParams.get("page");

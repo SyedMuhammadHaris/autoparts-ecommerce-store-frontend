@@ -20,3 +20,11 @@ it("limits staff payment mutations to explicit actions", async () => {
   expect(proxy).toHaveBeenLastCalledWith(expect.any(Request), "/admin/payments/1/verify/", ["POST"]);
   expect((await PATCH(new Request("http://localhost:3000/api/admin/payments/1/arbitrary", { method: "PATCH" }), { params: Promise.resolve({ path: ["payments", "1", "arbitrary"] }) })).status).toBe(404);
 });
+
+it("limits fulfillment to list/detail routes and forwards only the page query", async () => {
+  await adminGet(new Request("http://localhost:3000/api/admin/fulfillment?page=2&status=arbitrary"), { params: Promise.resolve({ path: ["fulfillment"] }) });
+  expect(proxy).toHaveBeenLastCalledWith(expect.any(Request), "/admin/fulfillment/?page=2", ["GET"]);
+  await adminPost(new Request("http://localhost:3000/api/admin/fulfillment/1", { method: "POST" }), { params: Promise.resolve({ path: ["fulfillment", "1"] }) });
+  expect(proxy).toHaveBeenLastCalledWith(expect.any(Request), "/admin/fulfillment/1/", ["GET", "POST"]);
+  expect((await adminPost(new Request("http://localhost:3000/api/admin/fulfillment/1/skip"), { params: Promise.resolve({ path: ["fulfillment", "1", "skip"] }) })).status).toBe(404);
+});
