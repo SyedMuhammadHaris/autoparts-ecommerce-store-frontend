@@ -4,6 +4,9 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { readSiteUrl } from "@/lib/env";
 import "./globals.css";
+import "react-toastify/dist/ReactToastify.css";
+import { ApiProvider } from "@/lib/query/provider";
+import { ToastHost } from "@/components/toast-host";
 
 export const metadata: Metadata = {
   metadataBase: new URL(readSiteUrl(process.env.NEXT_PUBLIC_SITE_URL)),
@@ -20,11 +23,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <a className="skip-link" href="#main-content">
           Skip to content
         </a>
-        <div className="site-shell">
+        <ApiProvider><div className="site-shell">
           <SiteHeader />
           {children}
           <SiteFooter />
-        </div>
+        </div></ApiProvider>
+        <ToastHost />
       </body>
     </html>
   );

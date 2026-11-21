@@ -1,3 +1,5 @@
+> Current frontend conventions: forms use React Hook Form/Zod, client server state uses TanStack Query, and the shared API transport unwraps the new application envelope. See [forms/API migration](forms-api-migration.md), which supersedes older transport examples below.
+
 # Phase 2 review
 
 The session-authentication sections below describe the original Phase 2 milestone.

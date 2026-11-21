@@ -185,6 +185,28 @@ The backend exposes versioned REST APIs:
 
 Create a centralized typed API client.
 
+Use React Hook Form (`useForm`) with Zod/resolvers for forms and TanStack Query
+for client server-state queries/mutations. Prefer `useApiQuery`/`useApiMutation`
+and shared `clientFetch`/`apiAction`; server components use the server-only
+`serverFetch` helper. Pass query/path parameters through the shared encoder.
+Do not duplicate component fetching effects, CSRF setup or response parsing.
+Application responses use the backend success/error envelope; unwrap it once in
+the transport. Native NextAuth endpoints retain their SDK protocol; HTTP 204 is
+bodyless. Keep server-only credentials behind the BFF and preserve HTTP errors.
+Clear private query state when authentication changes. Never persist credentials
+or customer data in browser query storage; never put passwords in mutation-cache
+variables. Mutations do not retry automatically, especially checkout and stock
+adjustments. Preserve explicit idempotency/recovery workflows. See
+`docs/forms-api-migration.md` for conventions, approved pins and rollout.
+
+Use the single root React Toastify host for API notifications. Shared client
+mutations already notify success/errors; do not duplicate those toasts in each
+component. Supply an action-specific success fallback through API options and
+keep field validation/critical recovery guidance inline. Query errors notify
+after retries; expected anonymous account probes and successful background reads
+stay quiet. Never toast raw exception diagnostics, credentials or payloads.
+See `docs/toast-notifications.md` for notification options and lifecycle.
+
 The frontend must not directly access PostgreSQL, Redis, or internal backend services.
 
 The backend owns:

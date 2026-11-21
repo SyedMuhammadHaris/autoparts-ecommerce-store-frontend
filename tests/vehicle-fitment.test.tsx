@@ -1,9 +1,18 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { renderWithQuery as render } from "./helpers/render";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { VehicleSelector } from "@/components/vehicle-selector";
 import { ProductOption } from "@/components/product-option";
 import AdminPage from "@/app/admin/page";
 import { apiRequest } from "@/lib/api";
-jest.mock("@/lib/api", () => ({ ...jest.requireActual("@/lib/api"), apiRequest: jest.fn() }));
+jest.mock("@/lib/api", () => {
+  const actual = jest.requireActual("@/lib/api");
+  const { apiPath } = jest.requireActual("@/lib/api/contracts");
+  const request = jest.fn();
+  return { ...actual, apiRequest: request,
+    clientFetch: (options: import("@/lib/api/contracts").ApiOptions) => request(apiPath(options)),
+    apiAction: (options: import("@/lib/api/contracts").ApiAction) => request(apiPath(options), options.method, options.payload),
+  };
+});
 const request = apiRequest as jest.Mock;
 const vehicle = { id: 1, model: 10, make: 1, make_name: "Toyota", model_name: "Corolla", year_start: 2014, year_end: 2018, engine: "1.8", trim: "Grande" };
 const makes = [{ id: 1, name: "Toyota", slug: "toyota" }, { id: 2, name: "Honda", slug: "honda" }];

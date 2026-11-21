@@ -1,4 +1,5 @@
 /** @jest-environment node */
+import { successEnvelope } from "@/lib/api/contracts";
 import { randomUUID } from "node:crypto";
 import { refreshTokens, SessionEnded } from "@/lib/server/auth-tokens";
 import { authOptions } from "@/lib/server/auth-options";
@@ -8,7 +9,7 @@ afterEach(() => { global.fetch = originalFetch; });
 function expired() { return { sub: "1", accessToken: "old.access", refreshToken: randomUUID(), accessExpiresAt: 1, refreshExpiresAt: Math.floor(Date.now()/1000)+3600 }; }
 function rotated() { return { access: "new.access", refresh: "new.refresh", access_expires_at: Math.floor(Date.now()/1000)+300, refresh_expires_at: Math.floor(Date.now()/1000)+3600 }; }
 it("coalesces concurrent refreshes and old-cookie retries into one backend rotation", async () => {
-  global.fetch = jest.fn().mockResolvedValue(Response.json(rotated()));
+  global.fetch = jest.fn().mockResolvedValue(Response.json(successEnvelope(rotated())));
   const old = expired();
   const [first, second] = await Promise.all([refreshTokens(old), refreshTokens(old)]);
   expect(first.refreshToken).toBe("new.refresh");
@@ -25,7 +26,7 @@ it("does not refresh valid access credentials or silently reuse a revoked refres
   await expect(refreshTokens(expired())).rejects.toBeInstanceOf(SessionEnded);
 });
 it("allows a refresh retry after a temporary backend outage", async () => {
-  global.fetch = jest.fn().mockRejectedValueOnce(new Error("private-diagnostic")).mockResolvedValueOnce(Response.json(rotated()));
+  global.fetch = jest.fn().mockRejectedValueOnce(new Error("private-diagnostic")).mockResolvedValueOnce(Response.json(successEnvelope(rotated())));
   const old = expired();
   await expect(refreshTokens(old)).rejects.toThrow();
   expect((await refreshTokens(old)).accessToken).toBe("new.access");
@@ -42,5 +43,5 @@ it("revokes the Django session on NextAuth signout", async () => {
   const token = { ...expired(), accessExpiresAt: Math.floor(Date.now()/1000)+300 };
   const callback = authOptions.events!.signOut!;
   await callback({ token, session: { expires: "2099-01-01" } });
-  expect(fetch).toHaveBeenCalledWith("http://backend:8000/api/v1/auth/logout/", expect.objectContaining({ method: "POST", headers: { Authorization: "Bearer old.access" } }));
+  expect(fetch).toHaveBeenCalledWith("http://backend:8000/api/v1/auth/logout/", expect.objectContaining({ method: "POST", headers: expect.objectContaining({ Authorization: "Bearer old.access" }) }));
 });

@@ -1,9 +1,10 @@
 /** @jest-environment node */
+import { successEnvelope } from "@/lib/api/contracts";
 import { CatalogNotFound, readProduct, readProducts } from "@/lib/server/catalog";
 const originalFetch = global.fetch;
 beforeEach(() => {
   process.env.BACKEND_API_URL = "http://backend:8000/api/v1";
-  global.fetch = jest.fn().mockResolvedValue(Response.json({ count: 0, results: [] }));
+  global.fetch = jest.fn().mockResolvedValue(Response.json(successEnvelope({ count: 0, results: [] })));
 });
 afterEach(() => { global.fetch = originalFetch; });
 it("forwards only bounded catalog filters and drops empty form values", async () => {

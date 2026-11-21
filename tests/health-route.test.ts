@@ -8,7 +8,7 @@ it("returns an uncached health response and preserves safe correlation IDs", asy
   jest.mocked(getBackendHealth).mockResolvedValue({ status: "ok" });
   const response = await GET(new Request("http://localhost/api/health", { headers: { "X-Request-ID": "safe-1" } }));
   expect(response.status).toBe(200);
-  expect(await response.json()).toEqual({ status: "ok" });
+  expect((await response.json()).success.data).toEqual({ status: "ok" });
   expect(response.headers.get("cache-control")).toBe("no-store");
   expect(response.headers.get("x-request-id")).toBe("safe-1");
 });
@@ -18,7 +18,8 @@ it("returns a sanitized 503 and replaces untrusted IDs", async () => {
   const response = await GET(new Request("http://localhost/api/health", { headers: { "X-Request-ID": "x".repeat(100) } }));
   const body = await response.json();
   expect(response.status).toBe(503);
-  expect(body.error.code).toBe("BACKEND_UNAVAILABLE");
+  expect(body.error.code).toBe(503);
+  expect(body.error.data.error_code).toBe("BACKEND_UNAVAILABLE");
   expect(JSON.stringify(body)).not.toContain("backend-secret");
   expect(body.request_id).toBe(response.headers.get("x-request-id"));
   expect(body.request_id).not.toBe("x".repeat(100));

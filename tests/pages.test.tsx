@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { renderWithQuery as render } from "./helpers/render";
+import { fireEvent, screen } from "@testing-library/react";
 import HomePage from "@/app/page";
 import NotFound from "@/app/not-found";
 import ErrorPage from "@/app/error";

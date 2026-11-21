@@ -1,26 +1,21 @@
 "use client";
 import { useState } from "react";
 import { priceLabel, type Variant } from "@/lib/catalog-types";
-import { apiRequest, friendlyError } from "@/lib/api";
-import { cartChanged, type Cart } from "@/features/cart/types";
+import { apiAction, clientFetch, friendlyError } from "@/lib/api";
+import { type Cart } from "@/features/cart/types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 
 export function ProductOption({ variants }: { variants: Variant[] }) {
   const [selected, setSelected] = useState(variants[0]?.id);
-  const [busy, setBusy] = useState(false);
-  const [notice, setNotice] = useState("");
-  const [error, setError] = useState("");
   const variant = variants.find(value => value.id === selected);
-  async function add() {
-    if (!variant || busy) return;
-    setBusy(true); setNotice(""); setError("");
-    try {
-      const cart = await apiRequest<Cart>("/api/cart");
+  const client = useQueryClient();
+  const mutation = useMutation({ retry: false, mutationFn: async () => {
+      if (!variant) return;
+      const cart = await client.fetchQuery({ queryKey: ["api", "/api/cart"], queryFn: ({ signal }) => clientFetch<Cart>({ path: "/api/cart", signal }), staleTime: 0 });
       const quantity = (cart.items.find(item => item.variant === variant.id)?.quantity ?? 0) + 1;
-      await apiRequest("/api/cart", "PUT", { variant: variant.id, quantity });
-      cartChanged(); setNotice("Added to your cart.");
-    } catch (failure) { setError(friendlyError(failure)); } finally { setBusy(false); }
-  }
+      await apiAction({ path: "/api/cart", method: "PUT", payload: { variant: variant.id, quantity }, notifications: { success: "Added to your cart." } });
+    }, onSuccess: () => client.invalidateQueries({ queryKey: ["api", "/api/cart"] }) });
   if (!variant) return <p>This product is currently unavailable.</p>;
   return <div className="panel-form">
     <label>Product option<select value={selected} onChange={event => setSelected(Number(event.target.value))}>
@@ -34,9 +29,9 @@ export function ProductOption({ variants }: { variants: Variant[] }) {
         <p>These records apply to this option. Confirm engine, trim and part specifications; make, model and year alone may not establish a fit.</p>
       </> : <p>Compatibility not recorded. Confirm fitment before ordering.</p>}
     </section>
-    <button className="primary-button" disabled={busy || variant.quantity_available < 1} onClick={add}>{busy ? "Adding…" : "Add to cart"}</button>
-    {notice && <p role="status">{notice} <Link href="/cart">View cart</Link></p>}
-    {error && <p role="alert" className="form-error">{error}</p>}
+    <button className="primary-button" disabled={mutation.isPending || variant.quantity_available < 1} onClick={() => mutation.mutate()}>{mutation.isPending ? "Adding…" : "Add to cart"}</button>
+    {mutation.isSuccess && <p role="status">Added to your cart. <Link href="/cart">View cart</Link></p>}
+    {mutation.error && <p role="alert" className="form-error">{friendlyError(mutation.error)}</p>}
     <small>Stock is reserved only when your order is placed.</small>
   </div>;
 }

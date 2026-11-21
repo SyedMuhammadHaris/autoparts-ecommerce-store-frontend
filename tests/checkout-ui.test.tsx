@@ -1,9 +1,18 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { renderWithQuery as render } from "./helpers/render";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { CheckoutPage } from "@/features/checkout/checkout-page";
 import { OrderPage } from "@/features/checkout/order-page";
 import { apiRequest, ApiError } from "@/lib/api";
 
-jest.mock("@/lib/api", () => ({ ...jest.requireActual("@/lib/api"), apiRequest: jest.fn() }));
+jest.mock("@/lib/api", () => {
+  const actual = jest.requireActual("@/lib/api");
+  const { apiPath } = jest.requireActual("@/lib/api/contracts");
+  const request = jest.fn();
+  return { ...actual, apiRequest: request,
+    clientFetch: (options: import("@/lib/api/contracts").ApiOptions) => request(apiPath(options)),
+    apiAction: (options: import("@/lib/api/contracts").ApiAction) => request(apiPath(options), options.method, options.payload),
+  };
+});
 const push = jest.fn();
 const replace = jest.fn();
 const router = { push, replace };
@@ -68,7 +77,7 @@ it("recovers a completed attempt before allowing a second checkout", async () =>
 });
 it("displays immutable order totals and cancels a pending order", async () => {
   const order = { ...quote, reference: "a".repeat(24), status: "pending", payment: { method: "cod", status: "pending_collection" }, address: { name: "Test", line1: "Test street", city: "Test city", country: "PK" }, items: [{ name: "Brake pad", sku: "PAD", quantity: 1, line_total: "1000.00" }], expires_at: new Date().toISOString(), history: [] };
-  request.mockResolvedValueOnce(order).mockResolvedValueOnce({ ...order, status: "cancelled", payment: { ...order.payment, status: "cancelled" } });
+  request.mockResolvedValueOnce(order).mockResolvedValue({ ...order, status: "cancelled", payment: { ...order.payment, status: "cancelled" } });
   render(<OrderPage reference={order.reference} />);
   fireEvent.click(await screen.findByRole("button", { name: "Cancel pending order" }));
   await waitFor(() => expect(screen.queryByRole("button", { name: "Cancel pending order" })).not.toBeInTheDocument());

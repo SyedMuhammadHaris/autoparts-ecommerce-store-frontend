@@ -1,34 +1,28 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
-import { apiRequest, friendlyError } from "@/lib/api";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { friendlyError } from "@/lib/api";
+import { useApiMutation } from "@/lib/query/hooks";
+import { otpSchema } from "@/lib/forms/schemas";
+import { FormErrors } from "@/lib/forms/form-errors";
 
 export default function VerifyEmailPage() {
   const router = useRouter();
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  async function send() {
-    setBusy(true); setError("");
-    try { await apiRequest("/api/account/verification/send", "POST", {}); setMessage("Delivery requested. Check your email; the code expires in 10 minutes. Wait 60 seconds before resending."); }
-    catch (failure) { setError(friendlyError(failure) + " You can skip verification."); } finally { setBusy(false); }
-  }
-  async function confirm(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); setBusy(true); setError("");
-    const fields = new FormData(event.currentTarget);
-    try { await apiRequest("/api/account/verification/confirm", "POST", { code: fields.get("code") }); router.push("/account"); router.refresh(); }
-    catch (failure) { setError(friendlyError(failure)); } finally { setBusy(false); }
-  }
-  return <main id="main-content" className="form-page">
-    <p className="eyebrow">Optional email verification</p><h1>One small check.</h1>
+  const form = useForm<{ code: string }>({ resolver: zodResolver(otpSchema), defaultValues: { code: "" } });
+  const send = useApiMutation<unknown, void>(() => ({ path: "/api/account/verification/send", method: "POST", payload: {}, notifications: { success: "Verification email requested." } }));
+  const confirm = useApiMutation<unknown, { code: string }>(payload => ({ path: "/api/account/verification/confirm", method: "POST", payload, notifications: { success: "Email verified." } }), ["/api/account/me"]);
+  const busy = send.isPending || confirm.isPending;
+  return <main id="main-content" className="form-page"><p className="eyebrow">Optional email verification</p><h1>One small check.</h1>
     <p>Request a six-digit code for your email. You can skip this step and use your account normally.</p>
-    <button className="secondary-button" disabled={busy} onClick={send}>Send / resend code</button>
-    <form className="panel-form" onSubmit={confirm}>
-      <label>Verification code<input name="code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" minLength={6} maxLength={6} required /></label>
+    <button className="secondary-button" disabled={busy} onClick={() => send.mutate()}>Send / resend code</button>
+    <form noValidate className="panel-form" onSubmit={form.handleSubmit(values => confirm.mutate(values, { onSuccess: () => { router.push("/account"); router.refresh(); } }))}>
+      <label>Verification code<input {...form.register("code")} inputMode="numeric" autoComplete="one-time-code" aria-invalid={!!form.formState.errors.code} maxLength={6} /></label><FormErrors errors={form.formState.errors} />
       <button className="primary-button" disabled={busy}>Verify email</button>
     </form>
-    {message && <p role="status">{message}</p>}{error && <p role="alert" className="form-error">{error}</p>}
+    {send.isSuccess && <p role="status">Delivery requested. Check your email; the code expires in 10 minutes. Wait 60 seconds before resending.</p>}
+    {(send.error || confirm.error) && <p role="alert" className="form-error">{friendlyError(send.error ?? confirm.error)} You can skip verification.</p>}
     <p><Link href="/account">Skip for now / return to account</Link></p>
   </main>;
 }

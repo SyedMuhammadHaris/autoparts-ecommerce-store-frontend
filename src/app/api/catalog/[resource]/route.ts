@@ -1,10 +1,11 @@
+import { routeErrorResponse } from "@/lib/server/response";
 import { proxyApi } from "@/lib/server/proxy";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 const resources = new Set(["vehicle-makes", "vehicle-models", "vehicle-fitments"]);
 export async function GET(request: Request, context: { params: Promise<{ resource: string }> }) {
   const { resource } = await context.params;
-  if (!resources.has(resource)) return Response.json({ error: { message: "Not found." } }, { status: 404 });
+  if (!resources.has(resource)) return routeErrorResponse(404, "Not found.", "NOT_FOUND");
   const source = new URL(request.url).searchParams;
   const query = new URLSearchParams();
   for (const key of ["make", "model", "page", "page_size"]) {

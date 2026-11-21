@@ -121,3 +121,14 @@ select[multiple] { min-height: 120px; }
 .checkout-totals > div { display: flex; justify-content: space-between; gap: 20px; }
 .checkout-totals dd { margin: 0; text-align: right; }
 @media(max-width:800px) { .checkout-layout { grid-template-columns: 1fr; gap: 24px; } }
+.app-notifications {
+  --toastify-font-family: var(--font-sans);
+  --toastify-color-success: #152629;
+  --toastify-color-error: #9d2d1c;
+  --toastify-text-color-light: var(--color-ink);
+  --toastify-toast-bd-radius: 4px;
+  max-width: calc(100vw - 32px);
+}
+@media(prefers-reduced-motion: reduce) {
+  .app-notifications * { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}

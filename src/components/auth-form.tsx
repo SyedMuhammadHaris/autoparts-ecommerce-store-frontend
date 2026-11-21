@@ -2,43 +2,58 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { useState, type FormEvent } from "react";
-import { apiRequest, friendlyError } from "@/lib/api";
-import { cartChanged } from "@/features/cart/types";
+import { useRef, type FormEvent } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { apiAction, friendlyError } from "@/lib/api";
+import { authSchema, type AuthValues } from "@/lib/forms/schemas";
+import { FormErrors } from "@/lib/forms/form-errors";
+import { authStateChanged } from "@/lib/query/provider";
+import { ApiError } from "@/lib/api/contracts";
+import { notifyError, notifySuccess } from "@/lib/notifications";
 
-export function AuthForm({ register = false }: { register?: boolean }) {
+export function AuthForm({ register: signup = false }: { register?: boolean }) {
   const router = useRouter();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (busy) return;
-    setBusy(true); setError("");
-    const fields = new FormData(event.currentTarget);
-    try {
-      const credentials = {
-        name: fields.get("name"), email: fields.get("email"), password: fields.get("password"),
-      };
-      if (register) await apiRequest("/api/account/register", "POST", credentials);
-      const result = await signIn("credentials", { email: credentials.email, password: credentials.password, redirect: false });
-      if (!result?.ok || result.error) throw new Error("Invalid sign-in");
-      await apiRequest("/api/cart/merge", "POST", {});
-      cartChanged();
-      router.push(register ? "/verify-email" : "/account"); router.refresh();
-    } catch (failure) { setError(failure instanceof Error && failure.message === "Invalid sign-in" ? "Unable to sign in. Check your email/password, or try signing in if your account was just created." : friendlyError(failure)); } finally { setBusy(false); }
+  const client = useQueryClient();
+  const form = useForm<AuthValues>({ resolver: zodResolver(authSchema(signup)), defaultValues: { name: "", email: "", password: "" } });
+  const submission = useRef<{ values: AuthValues | null; pending: boolean }>({ values: null, pending: false });
+  const mutation = useMutation({ retry: false, gcTime: 0, mutationFn: async () => {
+    // Credentials stay in the form and this call, never in mutation-cache variables.
+    const values = submission.current.values;
+    submission.current.values = null;
+    if (!values) throw new Error("Invalid form submission");
+    if (signup) await apiAction({ path: "/api/account/register", method: "POST", payload: values, notifications: { success: false } });
+    const result = await signIn("credentials", { email: values.email, password: values.password, redirect: false });
+    if (!result?.ok || result.error) throw new Error("Invalid sign-in");
+    await client.cancelQueries();
+    client.removeQueries({ type: "inactive" });
+    await client.resetQueries({ type: "active" });
+    await apiAction({ path: "/api/cart/merge", method: "POST", payload: {}, notifications: { success: false } });
+    router.push(signup ? "/verify-email" : "/account"); router.refresh(); authStateChanged();
+    notifySuccess(signup ? "Account created. Email verification is optional." : "Signed in.");
+  }, onError: failure => {
+    if (!(failure instanceof ApiError)) notifyError(failure, failure.message === "Invalid sign-in" ? "Unable to sign in. Check your email and password." : undefined);
+  }, onSettled: () => { submission.current = { values: null, pending: false }; } });
+  const error = mutation.error?.message === "Invalid sign-in" ? "Unable to sign in. Check your email/password, or try signing in if your account was just created." : mutation.error ? friendlyError(mutation.error) : "";
+  function submit(event: FormEvent<HTMLFormElement>) {
+    void form.handleSubmit(values => {
+      if (submission.current.pending) return;
+      submission.current = { values, pending: true }; mutation.mutate();
+    })(event);
   }
   return <main id="main-content" className="form-page">
-    <p className="eyebrow">Your Autoparts account</p>
-    <h1>{register ? "Make yourself at home." : "Welcome back."}</h1>
-    <p>{register ? "Create an account. Email verification is optional after signup." : "Sign in with your email and password."}</p>
-    <form onSubmit={submit} className="panel-form">
-      {register && <label>Name<input name="name" autoComplete="name" required maxLength={255} /></label>}
-      <label>Email<input name="email" type="email" autoComplete="email" required maxLength={255} /></label>
-      <label>Password<input name="password" type="password" autoComplete={register ? "new-password" : "current-password"} required minLength={register ? 8 : undefined} maxLength={128} /></label>
-      {register && <small>Use at least 8 characters; avoid common, numeric-only, or personal passwords.</small>}
+    <p className="eyebrow">Your Autoparts account</p><h1>{signup ? "Make yourself at home." : "Welcome back."}</h1>
+    <p>{signup ? "Create an account. Email verification is optional after signup." : "Sign in with your email and password."}</p>
+    <form noValidate onSubmit={submit} className="panel-form">
+      {signup && <label>Name<input {...form.register("name")} autoComplete="name" aria-invalid={!!form.formState.errors.name} maxLength={255} /></label>}
+      <label>Email<input {...form.register("email")} type="email" autoComplete="email" aria-invalid={!!form.formState.errors.email} maxLength={255} /></label>
+      <label>Password<input {...form.register("password")} type="password" autoComplete={signup ? "new-password" : "current-password"} aria-invalid={!!form.formState.errors.password} maxLength={128} /></label>
+      {signup && <small>Use at least 8 characters; avoid common, numeric-only, or personal passwords.</small>}
+      <FormErrors errors={form.formState.errors} />
       {error && <p role="alert" className="form-error">{error}</p>}
-      <button className="primary-button" disabled={busy}>{busy ? "Please wait…" : register ? "Create account" : "Sign in"}</button>
+      <button className="primary-button" disabled={mutation.isPending}>{mutation.isPending ? "Please wait…" : signup ? "Create account" : "Sign in"}</button>
     </form>
-    <p>{register ? "Already have an account? " : "New here? "}<Link href={register ? "/login" : "/signup"}>{register ? "Sign in" : "Create an account"}</Link></p>
+    <p>{signup ? "Already have an account? " : "New here? "}<Link href={signup ? "/login" : "/signup"}>{signup ? "Sign in" : "Create an account"}</Link></p>
   </main>;
 }
