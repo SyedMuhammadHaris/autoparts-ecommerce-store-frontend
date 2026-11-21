@@ -1,46 +1,42 @@
 "use client";
-import { useEffect, useState } from "react";
-import { apiRequest, friendlyError } from "@/lib/api";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { clientFetch, friendlyError } from "@/lib/api";
 import type { Page, VehicleMake, VehicleModel, VehicleFitment } from "@/lib/catalog-types";
 
 type Selection = { make: string; model: string; year: string; engine: string; trim: string };
-type Props = { makes: VehicleMake[]; models: VehicleModel[]; fitments: VehicleFitment[]; initial: Selection };
-async function options<T>(resource: string, query: URLSearchParams): Promise<T[]> {
-  const result: T[] = [];
+type Props = { makes: VehicleMake[]; models: VehicleModel[]; fitments: VehicleFitment[]; initial: Selection; onSelectionChange?: (selection: Selection) => void };
+async function options<T>(resource: string, values: Record<string, string>, signal: AbortSignal): Promise<T[]> {
+  const rows: T[] = [];
   for (let page = 1; page <= 100; page++) {
-    query.set("page", String(page)); query.set("page_size", "100");
-    const data = await apiRequest<Page<T>>(`/api/catalog/${resource}?${query}`);
-    result.push(...data.results);
-    if (!data.next) return result;
+    const result = await clientFetch<Page<T>>({ path: "/api/catalog/{resource}", pathParams: { resource }, query: { ...values, page, page_size: 100 }, signal });
+    rows.push(...result.results);
+    if (!result.next) return rows;
   }
   throw new Error("Vehicle options exceed the initial catalog limit");
 }
-export function VehicleSelector({ makes, models: initialModels, fitments: initialFitments, initial }: Props) {
+export function VehicleSelector({ makes, models: initialModels, fitments: initialFitments, initial, onSelectionChange }: Props) {
   const [selection, setSelection] = useState(initial);
-  const [models, setModels] = useState(initialModels);
-  const [fitments, setFitments] = useState(initialFitments);
-  const [error, setError] = useState("");
-  const [loadingModels, setLoadingModels] = useState(false);
-  const [loadingFitments, setLoadingFitments] = useState(false);
-  useEffect(() => {
-    if (!selection.make) return;
-    let live = true;
-    options<VehicleModel>("vehicle-models", new URLSearchParams({ make: selection.make })).then(rows => { if (live) { setModels(rows); setLoadingModels(false); } }).catch(failure => { if (live) { setError(friendlyError(failure)); setLoadingModels(false); } });
-    return () => { live = false; };
-  }, [selection.make]);
-  useEffect(() => {
-    if (!selection.make || !selection.model) return;
-    let live = true;
-    options<VehicleFitment>("vehicle-fitments", new URLSearchParams({ make: selection.make, model: selection.model })).then(rows => { if (live) { setFitments(rows); setLoadingFitments(false); } }).catch(failure => { if (live) { setError(friendlyError(failure)); setLoadingFitments(false); } });
-    return () => { live = false; };
-  }, [selection.make, selection.model]);
+  const modelQuery = useQuery({ queryKey: ["vehicle-models", selection.make], enabled: !!selection.make,
+    queryFn: ({ signal }) => options<VehicleModel>("vehicle-models", { make: selection.make }, signal),
+    initialData: selection.make === initial.make ? initialModels : undefined,
+  });
+  const fitmentQuery = useQuery({ queryKey: ["vehicle-fitments", selection.make, selection.model], enabled: !!selection.make && !!selection.model,
+    queryFn: ({ signal }) => options<VehicleFitment>("vehicle-fitments", { make: selection.make, model: selection.model }, signal),
+    initialData: selection.make === initial.make && selection.model === initial.model ? initialFitments : undefined,
+  });
+  const models = selection.make ? modelQuery.data ?? [] : [];
+  const fitments = selection.model ? fitmentQuery.data ?? [] : [];
+  const loadingModels = modelQuery.isFetching;
+  const loadingFitments = fitmentQuery.isFetching;
+  const error = modelQuery.error ?? fitmentQuery.error;
   function choose(field: keyof Selection, value: string) {
-    setError("");
-    if (field === "make") { setModels([]); setFitments([]); setSelection({ make: value, model: "", year: "", engine: "", trim: "" }); setLoadingModels(!!value); setLoadingFitments(false); }
-    else if (field === "model") { setFitments([]); setSelection({ ...selection, model: value, year: "", engine: "", trim: "" }); setLoadingFitments(!!value); }
-    else if (field === "year") setSelection({ ...selection, year: value, engine: "", trim: "" });
-    else if (field === "engine") setSelection({ ...selection, engine: value, trim: "" });
-    else setSelection({ ...selection, [field]: value });
+    let next = { ...selection, [field]: value };
+    if (field === "make") next = { make: value, model: "", year: "", engine: "", trim: "" };
+    else if (field === "model") next = { ...selection, model: value, year: "", engine: "", trim: "" };
+    else if (field === "year") next = { ...selection, year: value, engine: "", trim: "" };
+    else if (field === "engine") next = { ...selection, engine: value, trim: "" };
+    setSelection(next); onSelectionChange?.(next);
   }
   const years = [...new Set(fitments.flatMap(row => Array.from({ length: row.year_end - row.year_start + 1 }, (_, index) => row.year_start + index)))].sort((a, b) => b - a);
   const inYear = fitments.filter(row => !selection.year || row.year_start <= Number(selection.year) && row.year_end >= Number(selection.year));
@@ -55,6 +51,6 @@ export function VehicleSelector({ makes, models: initialModels, fitments: initia
       <label>Engine (optional)<select name="engine" value={selection.engine} onChange={event => choose("engine", event.target.value)} disabled={!selection.model || loadingFitments}><option value="">Any listed engine</option>{engines.map(engine => <option key={engine}>{engine}</option>)}</select></label>
       <label>Trim (optional)<select name="trim" value={selection.trim} onChange={event => choose("trim", event.target.value)} disabled={!selection.model || loadingFitments}><option value="">Any listed trim</option>{trims.map(trim => <option key={trim}>{trim}</option>)}</select></label>
     </div>
-    {(loadingModels || loadingFitments) && <p role="status">Loading vehicle options…</p>}{error && <p role="alert" className="form-error">{error} Change the vehicle selection to retry.</p>}
+    {(loadingModels || loadingFitments) && <p role="status">Loading vehicle options…</p>}{error && <p role="alert" className="form-error">{friendlyError(error)} Change the vehicle selection to retry.</p>}
   </fieldset>;
 }

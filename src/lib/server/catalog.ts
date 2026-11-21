@@ -1,5 +1,6 @@
 import "server-only";
-import { backendConfiguration } from "@/lib/server/backend";
+import { serverFetch } from "@/lib/server/fetch";
+import { ApiError } from "@/lib/api/contracts";
 import { vehicleQuery } from "@/lib/vehicle-query";
 import type { Page, Product, Taxonomy, VehicleMake, VehicleModel, VehicleFitment } from "@/lib/catalog-types";
 
@@ -7,12 +8,12 @@ export class CatalogNotFound extends Error {}
 export class CatalogInvalidFilters extends Error {}
 
 async function readCatalog<T>(path: string): Promise<T> {
-  const { baseUrl, timeoutMs } = backendConfiguration();
-  const response = await fetch(baseUrl + "/catalog/" + path, { cache: "no-store", redirect: "error", signal: AbortSignal.timeout(timeoutMs), headers: { Accept: "application/json" } });
-  if (response.status === 404) throw new CatalogNotFound("Not found");
-  if (response.status === 400) throw new CatalogInvalidFilters("Check the selected filters");
-  if (!response.ok || !response.headers.get("content-type")?.includes("application/json")) throw new Error("Catalog unavailable");
-  return response.json() as Promise<T>;
+  try { return await serverFetch<T>({ path: "/catalog/" + path }); }
+  catch (failure) {
+    if (failure instanceof ApiError && failure.status === 404) throw new CatalogNotFound("Not found");
+    if (failure instanceof ApiError && failure.status === 400) throw new CatalogInvalidFilters("Check the selected filters");
+    throw new Error("Catalog unavailable");
+  }
 }
 export function readProducts(query: Record<string, string | string[] | undefined>): Promise<Page<Product>> {
   const params = new URLSearchParams();

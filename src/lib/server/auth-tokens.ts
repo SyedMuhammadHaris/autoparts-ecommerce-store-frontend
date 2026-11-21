@@ -1,7 +1,8 @@
 import "server-only";
 import { createHash } from "node:crypto";
 import type { JWT } from "next-auth/jwt";
-import { backendConfiguration } from "@/lib/server/backend";
+import { serverFetch } from "@/lib/server/fetch";
+import { ApiError } from "@/lib/api/contracts";
 import { readSiteUrl } from "@/lib/env";
 
 export type TokenPair = { access: string; refresh: string; access_expires_at: number; refresh_expires_at: number };
@@ -31,14 +32,11 @@ export function withTokens(token: JWT, pair: TokenPair): JWT {
 // A short completed-result window lets parallel requests carrying the old cookie converge.
 const refreshes = new Map<string, Promise<TokenPair>>();
 async function fetchRefresh(refresh: string): Promise<TokenPair> {
-  const { baseUrl, timeoutMs } = backendConfiguration();
-  const response = await fetch(`${baseUrl}/auth/refresh/`, {
-    method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ refresh }), cache: "no-store", redirect: "error", signal: AbortSignal.timeout(timeoutMs),
-  });
-  if (response.status === 401 || response.status === 400) throw new SessionEnded();
-  if (!response.ok) throw new Error("Authentication service unavailable");
-  return readTokenPair(await response.json());
+  try { return readTokenPair(await serverFetch({ path: "/auth/refresh/", method: "POST", payload: { refresh } })); }
+  catch (failure) {
+    if (failure instanceof ApiError && [400, 401].includes(failure.status)) throw new SessionEnded();
+    throw failure;
+  }
 }
 
 export async function refreshTokens(token: JWT): Promise<JWT> {

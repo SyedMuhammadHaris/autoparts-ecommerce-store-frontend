@@ -1,17 +1,26 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { renderWithQuery as render } from "./helpers/render";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { AuthForm } from "@/components/auth-form";
 import { ProductOption } from "@/components/product-option";
 import VerifyEmailPage from "@/app/verify-email/page";
 import AdminPage from "@/app/admin/page";
 import { apiRequest, ApiError } from "@/lib/api";
-jest.mock("@/lib/api", () => ({ ...jest.requireActual("@/lib/api"), apiRequest: jest.fn() }));
+jest.mock("@/lib/api", () => {
+  const actual = jest.requireActual("@/lib/api");
+  const { apiPath } = jest.requireActual("@/lib/api/contracts");
+  const request = jest.fn();
+  return { ...actual, apiRequest: request,
+    clientFetch: (options: import("@/lib/api/contracts").ApiOptions) => request(apiPath(options)),
+    apiAction: (options: import("@/lib/api/contracts").ApiAction) => request(apiPath(options), options.method, options.payload),
+  };
+});
 jest.mock("next/navigation", () => ({ useRouter: () => ({ push: jest.fn(), refresh: jest.fn() }) }));
 jest.mock("next-auth/react", () => ({ signIn: jest.fn().mockResolvedValue({ ok: true }), signOut: jest.fn().mockResolvedValue({}) }));
 const request = apiRequest as jest.Mock;
 beforeEach(() => request.mockReset());
 it("shows signup fields and useful server validation without storing credentials", async () => {
   request.mockRejectedValue(new ApiError("Invalid", 400, { password: ["This password is too common."] }));
-  render(<AuthForm register />);
+  const { client } = render(<AuthForm register />);
   fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Customer" } });
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "customer@example.com" } });
   fireEvent.change(screen.getByLabelText("Password"), { target: { value: "password" } });
@@ -19,6 +28,7 @@ it("shows signup fields and useful server validation without storing credentials
   expect(await screen.findByRole("alert")).toHaveTextContent("This password is too common.");
   expect(request).toHaveBeenCalledWith("/api/account/register", "POST", { name: "Customer", email: "customer@example.com", password: "password" });
   expect(localStorage.length).toBe(0);
+  expect(client.getMutationCache().getAll()[0].state.variables).toBeUndefined();
 });
 it("keeps verification skippable when SMTP delivery is disabled", async () => {
   request.mockRejectedValue(new ApiError("Email delivery unavailable.", 503));

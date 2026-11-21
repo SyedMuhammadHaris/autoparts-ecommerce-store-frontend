@@ -7,9 +7,10 @@ import { checkBrowserMutation, readAuthState, setAuthCookie } from "@/lib/server
 import { SessionEnded } from "@/lib/server/auth-tokens";
 import { limitedBody } from "@/lib/server/request-body";
 import { cartCookie, hasAuthCookie } from "@/lib/server/cart-cookie";
+import { errorEnvelope } from "@/lib/api/contracts";
 
 function errorResponse(status: number, requestId: string, code: string, message: string) {
-  return Response.json({ error: { code, message, details: {} }, request_id: requestId }, {
+  return Response.json(errorEnvelope(status, message, code, requestId), {
     status, headers: { "Cache-Control": "no-store", "Vary": "Cookie", "X-Request-ID": requestId },
   });
 }

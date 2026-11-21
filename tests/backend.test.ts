@@ -1,4 +1,5 @@
 /** @jest-environment node */
+import { successEnvelope } from "@/lib/api/contracts";
 import { backendConfiguration, getBackendHealth } from "@/lib/server/backend";
 
 const originalFetch = global.fetch;
@@ -9,7 +10,7 @@ beforeEach(() => {
 afterEach(() => { global.fetch = originalFetch; jest.restoreAllMocks(); });
 
 it("calls only the fixed readiness destination with no cache or redirects", async () => {
-  const mockFetch = jest.fn().mockResolvedValue(Response.json({ status: "ok", extra: "discard" }));
+  const mockFetch = jest.fn().mockResolvedValue(Response.json(successEnvelope({ status: "ok", extra: "discard" })));
   global.fetch = mockFetch;
   expect(await getBackendHealth("request-1")).toEqual({ status: "ok" });
   expect(mockFetch).toHaveBeenCalledWith("http://backend:8000/api/v1/health/ready/", expect.objectContaining({

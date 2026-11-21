@@ -1,3 +1,4 @@
+import { routeErrorResponse } from "@/lib/server/response";
 import { proxyApi } from "@/lib/server/proxy";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,7 +10,7 @@ async function handle(request: Request, context: Context) {
     return proxyApi(request, `/orders/${page && /^[1-9][0-9]{0,8}$/.test(page) ? `?page=${page}` : ""}`, ["GET"]);
   }
   if (path.length <= 2 && /^[a-f0-9]{24}$/.test(path[0]) && (!path[1] || path[1] === "cancel")) return proxyApi(request, `/orders/${path.join("/")}/`, path[1] ? ["POST"] : ["GET"]);
-  return Response.json({ error: { message: "Not found." } }, { status: 404 });
+  return routeErrorResponse(404, "Not found.", "NOT_FOUND");
 }
 export const GET = handle;
 export const POST = handle;

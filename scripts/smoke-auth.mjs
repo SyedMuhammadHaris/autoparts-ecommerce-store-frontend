@@ -26,7 +26,17 @@ async function call(path, { body, method = "GET", expected = 200, cookie = cooki
   const response = await fetch(base + path, { method, headers: { Cookie: cookie, Origin: origin, "Content-Type": type }, body });
   remember(response);
   assert.equal(response.status, expected, `Unexpected response for ${path}`);
-  return response.status === 204 ? undefined : response.json();
+  if (response.status === 204) return undefined;
+  const payload = await response.json();
+  if (path.startsWith("/api/auth/")) return payload;
+  if (response.ok) {
+    assert.equal(payload.error, null);
+    assert.equal(payload.success.code, response.status);
+    return payload.success.data;
+  }
+  assert.equal(payload.success, null);
+  assert.equal(payload.error.code, response.status);
+  return payload;
 }
 async function csrf() { return (await call("/api/auth/csrf")).csrfToken; }
 const token = await csrf();
@@ -43,7 +53,7 @@ cookies.set(name, await encode({ token: { ...state, accessExpiresAt: 1 }, secret
 const oldCookie = cookieHeader();
 await Promise.all([call("/api/account/me", { cookie: oldCookie }), call("/api/account/me", { cookie: oldCookie })]);
 const rotated = await decode({ token: cookies.get(name), secret });
-assert.notEqual(rotated.refreshToken, state.refreshToken);
+assert.ok(rotated.refreshToken !== state.refreshToken, "Refresh credential did not rotate.");
 const rejected = await fetch(process.env.BACKEND_API_URL + "/auth/refresh/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ refresh: state.refreshToken }) });
 assert.equal(rejected.status, 401);
 await call("/api/auth/signout", { method: "POST", type: "application/x-www-form-urlencoded", body: new URLSearchParams({ csrfToken: await csrf(), callbackUrl: origin + "/", json: "true" }).toString() });
