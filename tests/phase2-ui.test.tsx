@@ -4,6 +4,7 @@ import { AuthForm } from "@/components/auth-form";
 import { ProductOption } from "@/components/product-option";
 import VerifyEmailPage from "@/app/verify-email/page";
 import AdminPage from "@/app/admin/page";
+import AccountPage from "@/app/account/page";
 import { apiRequest, ApiError } from "@/lib/api";
 jest.mock("@/lib/api", () => {
   const actual = jest.requireActual("@/lib/api");
@@ -18,6 +19,20 @@ jest.mock("next/navigation", () => ({ useRouter: () => ({ push: jest.fn(), refre
 jest.mock("next-auth/react", () => ({ signIn: jest.fn().mockResolvedValue({ ok: true }), signOut: jest.fn().mockResolvedValue({}) }));
 const request = apiRequest as jest.Mock;
 beforeEach(() => request.mockReset());
+it("updates the profile through the extracted form and keeps verification optional", async () => {
+  let name = "Customer";
+  request.mockImplementation((_path: string, method?: string, payload?: { name: string }) => {
+    if (method === "PATCH") name = payload!.name;
+    return Promise.resolve({ user: { id: 1, name, email: "customer@example.com", email_verified: false, is_staff: false, permissions: [] } });
+  });
+  render(<AccountPage />);
+  const input = await screen.findByLabelText("Name");
+  fireEvent.change(input, { target: { value: "Updated customer" } });
+  fireEvent.click(screen.getByRole("button", { name: "Save name" }));
+  expect(await screen.findByRole("status")).toHaveTextContent("Your name has been updated.");
+  expect(request).toHaveBeenCalledWith("/api/account/me", "PATCH", { name: "Updated customer" });
+  expect(screen.getByRole("link", { name: "Verify my email" })).toHaveAttribute("href", "/verify-email");
+});
 it("shows signup fields and useful server validation without storing credentials", async () => {
   request.mockRejectedValue(new ApiError("Invalid", 400, { password: ["This password is too common."] }));
   const { client } = render(<AuthForm register />);

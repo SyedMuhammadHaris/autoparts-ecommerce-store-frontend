@@ -1,11 +1,15 @@
 # Work status
 
 - Current phase: Phases 1–3 merged by user confirmation. Approved pre-Phase-4 forms/API/response refactor implemented and verified.
-- Current milestone: Core migration committed as c462f3a; same-branch API toast follow-up implemented and verified. User approved the toast commit.
-- Active branch: `refactor/forms-api-responses` in both repositories.
-- Baseline: Frontend main `8e9eaa9` (Phase 3 PR #6); backend main `bd17d12` (Phase 3 PR #8). Both were clean before branching.
+- Current milestone: Page/component separation implemented and verified; user approved the focused commit. Forms/API/toast PR merged by user confirmation.
+- Active branch: Frontend `refactor/page-components`; backend unchanged.
+- Current baseline: Frontend local main `f07da1b`, clean before creating the approved branch.
+- Current scope: Thin route pages; feature components for account, optional verification, admin, home, catalog, product detail and order route handling; dedicated profile and checkout form components. Metadata and route configuration remain in pages. Existing auth/admin/filter forms reused. No dependency, lockfile, environment or backend changes.
+- Current PR status: Page/component refactor verified and approved for commit on refactor/page-components. Awaiting user push, PR review and merge confirmation. No push or PR creation by agent.
+- Current verification: Docker lint, 111 tests across 20 suites, production build, TypeScript and compiler server-only boundary probe passed. Added account/profile update coverage; existing checkout/admin/OTP/toast regressions pass. No new browser visual QA. See docs/page-components.md.
+- Historical refactor baseline: Frontend main `8e9eaa9` (Phase 3 PR #6); backend main `bd17d12` (Phase 3 PR #8). Both were clean before that branch.
 - Authorization: User approved branches, exact packages, lockfile updates, Docker installations/builds and migration scope.
-- Git/PR status: Core frontend/backend commits created after approval (c462f3a / 26d3bd0). Toast follow-up approved for a focused frontend commit on the current branch. Nothing pushed or PR-created by the agent; no new merge outcome assumed.
+- Previous Git/PR status: Core frontend/backend commits c462f3a / 26d3bd0 and frontend toast commit 676c48f merged by user confirmation. No push or PR creation by agent.
 - Toast scope approved: react-toastify 11.2.0 and transitive clsx 2.1.1; Docker lockfile/install/build changes on the current branch. One root container, shared API success/error notifications, query-error deduplication and preserved inline validation/recovery. No backend/environment changes. See docs/toast-notifications.md.
 
 ## Completed refactor
