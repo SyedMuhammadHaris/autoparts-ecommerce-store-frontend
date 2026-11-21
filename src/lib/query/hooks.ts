@@ -5,7 +5,8 @@ import { ApiError, apiPath, type ApiAction, type ApiOptions } from "@/lib/api/co
 
 export function apiKey(options: ApiOptions) { return ["api", apiPath(options)] as const; }
 export function useApiQuery<T>(options: ApiOptions, enabled = true) {
-  const query = useQuery<T>({ queryKey: apiKey(options), queryFn: ({ signal }) => clientFetch<T>({ ...options, signal }), enabled });
+  const query = useQuery<T>({ queryKey: apiKey(options), queryFn: ({ signal }) => clientFetch<T>({ ...options, signal }), enabled,
+    meta: { notifyErrors: options.notifications?.error !== false } });
   // Refetch failures normally retain stale data; never retain private data after access is denied.
   const denied = query.error instanceof ApiError && [401, 403].includes(query.error.status);
   return { ...query, data: denied ? undefined : query.data };

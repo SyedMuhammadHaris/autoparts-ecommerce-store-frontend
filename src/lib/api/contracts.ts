@@ -1,11 +1,19 @@
 export class ApiError extends Error {
   constructor(message: string, public status: number, public details: Record<string, string[]> = {}, public code = "REQUEST_FAILED", public requestId?: string) { super(message); }
 }
+export function friendlyError(error: unknown): string {
+  if (error instanceof ApiError) {
+    const details = Object.values(error.details).flat().filter(value => typeof value === "string");
+    return details.length ? details.join(" ") : error.message;
+  }
+  return "Unable to connect. Please try again.";
+}
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 export type Query = Record<string, string | number | boolean | readonly (string | number)[] | null | undefined>;
 export type ApiOptions = {
   path: string; method?: HttpMethod; payload?: unknown; query?: Query;
   pathParams?: Record<string, string | number>; signal?: AbortSignal;
+  notifications?: { success?: string | false; error?: boolean };
 };
 export type ApiAction = ApiOptions & { method: Exclude<HttpMethod, "GET"> };
 
@@ -36,7 +44,7 @@ export function apiPath({ path, pathParams = {}, query }: Pick<ApiOptions, "path
   return pathname + (params.size ? `?${params}` : "");
 }
 
-export async function responseData<T>(response: Response): Promise<T> {
+export async function responseData<T>(response: Response, onSuccessMessage?: (message: string | null) => void): Promise<T> {
   if (response.status === 204) return undefined as T;
   if (!response.headers.get("content-type")?.includes("application/json")) throw new ApiError("Invalid service response.", 503);
   let body;
@@ -48,6 +56,7 @@ export async function responseData<T>(response: Response): Promise<T> {
       typeof body?.request_id === "string" ? body.request_id : response.headers.get("x-request-id") ?? undefined);
   }
   if (body?.error !== null || !body?.success || body.success.code !== response.status || !("data" in body.success)) throw new ApiError("Invalid service response.", 503);
+  onSuccessMessage?.(typeof body.success.message === "string" ? body.success.message : null);
   return body.success.data as T;
 }
 

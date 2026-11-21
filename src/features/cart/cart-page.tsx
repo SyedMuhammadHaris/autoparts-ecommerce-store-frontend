@@ -8,7 +8,7 @@ import type { Cart } from "./types";
 export function CartPage() {
   const query = useApiQuery<Cart>({ path: "/api/cart" });
   const cart = query.data;
-  const update = useApiMutation<Cart, { variant: number; quantity: number }>(payload => ({ path: "/api/cart", method: "PUT", payload }), ["/api/cart"]);
+  const update = useApiMutation<Cart, { variant: number; quantity: number }>(payload => ({ path: "/api/cart", method: "PUT", payload, notifications: { success: payload.quantity === 0 ? "Item removed from cart." : "Cart updated." } }), ["/api/cart"]);
   const error = query.error ?? update.error;
   return <main id="main-content" className="catalog-page"><p className="eyebrow">Your selection</p><h1>Your cart.</h1>
     <p>Prices and availability are checked again at checkout. Items in your cart are not reserved.</p>

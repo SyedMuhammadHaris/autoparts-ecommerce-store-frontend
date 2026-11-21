@@ -199,6 +199,14 @@ variables. Mutations do not retry automatically, especially checkout and stock
 adjustments. Preserve explicit idempotency/recovery workflows. See
 `docs/forms-api-migration.md` for conventions, approved pins and rollout.
 
+Use the single root React Toastify host for API notifications. Shared client
+mutations already notify success/errors; do not duplicate those toasts in each
+component. Supply an action-specific success fallback through API options and
+keep field validation/critical recovery guidance inline. Query errors notify
+after retries; expected anonymous account probes and successful background reads
+stay quiet. Never toast raw exception diagnostics, credentials or payloads.
+See `docs/toast-notifications.md` for notification options and lifecycle.
+
 The frontend must not directly access PostgreSQL, Redis, or internal backend services.
 
 The backend owns:

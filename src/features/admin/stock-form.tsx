@@ -14,7 +14,7 @@ export function StockForm({ id, onSaved }: { id: number; onSaved: () => Promise<
   const save = useMutation({ retry: false, mutationFn: (values: z.output<typeof stockSchema>) => {
     const fingerprint = JSON.stringify(values);
     if (fingerprint !== operation.current.fingerprint) operation.current = { fingerprint, key: crypto.randomUUID() };
-    return apiAction({ path: "/api/admin/inventory/{id}/adjust", pathParams: { id }, method: "POST", payload: { ...values, operation_key: operation.current.key } });
+    return apiAction({ path: "/api/admin/inventory/{id}/adjust", pathParams: { id }, method: "POST", payload: { ...values, operation_key: operation.current.key }, notifications: { success: "Stock adjustment recorded." } });
   }, onSuccess: onSaved });
   return <form noValidate className="panel-form" onSubmit={form.handleSubmit(values => save.mutate(values))}>
     <p>Positive quantities add stock; negative quantities remove stock. Every adjustment is recorded.</p>

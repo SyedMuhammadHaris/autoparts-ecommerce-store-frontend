@@ -11,8 +11,8 @@ import { FormErrors } from "@/lib/forms/form-errors";
 export default function VerifyEmailPage() {
   const router = useRouter();
   const form = useForm<{ code: string }>({ resolver: zodResolver(otpSchema), defaultValues: { code: "" } });
-  const send = useApiMutation<unknown, void>(() => ({ path: "/api/account/verification/send", method: "POST", payload: {} }));
-  const confirm = useApiMutation<unknown, { code: string }>(payload => ({ path: "/api/account/verification/confirm", method: "POST", payload }), ["/api/account/me"]);
+  const send = useApiMutation<unknown, void>(() => ({ path: "/api/account/verification/send", method: "POST", payload: {}, notifications: { success: "Verification email requested." } }));
+  const confirm = useApiMutation<unknown, { code: string }>(payload => ({ path: "/api/account/verification/confirm", method: "POST", payload, notifications: { success: "Email verified." } }), ["/api/account/me"]);
   const busy = send.isPending || confirm.isPending;
   return <main id="main-content" className="form-page"><p className="eyebrow">Optional email verification</p><h1>One small check.</h1>
     <p>Request a six-digit code for your email. You can skip this step and use your account normally.</p>

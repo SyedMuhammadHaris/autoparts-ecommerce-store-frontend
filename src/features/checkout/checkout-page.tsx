@@ -48,12 +48,12 @@ export function CheckoutPage() {
     const current = await client.fetchQuery({ queryKey: ["api", "/api/cart"], queryFn: ({ signal }) => clientFetch<Cart>({ path: "/api/cart", signal }), staleTime: 0 });
     const { city, shipping_rate, payment_method, ...address } = values;
     const selection = { city: Number(city), shipping_rate: Number(shipping_rate), cart_revision: current.revision, payment_method };
-    const quote = await apiAction<Quote>({ path: "/api/checkout/quote", method: "POST", payload: selection });
+    const quote = await apiAction<Quote>({ path: "/api/checkout/quote", method: "POST", payload: selection, notifications: { success: false } });
     return { quote, body: { ...selection, address, quote_token: quote.quote_token } };
   } });
   const place = useMutation<Order, Error, CheckoutBody>({ retry: false, mutationFn: async body => {
     sessionStorage.setItem(attemptStorage, body.idempotency_key);
-    return apiAction<Order>({ path: "/api/checkout", method: "POST", payload: body });
+    return apiAction<Order>({ path: "/api/checkout", method: "POST", payload: body, notifications: { success: "Order request completed." } });
   }, onSuccess: order => {
     sessionStorage.removeItem(attemptStorage);
     void client.invalidateQueries({ queryKey: ["api", "/api/cart"] });

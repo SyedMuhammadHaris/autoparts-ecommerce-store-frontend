@@ -1,5 +1,8 @@
 # Forms and API migration before Phase 4
 
+The approved same-branch [toast follow-up](toast-notifications.md) adds centralized
+React Toastify notifications for API success and error messages.
+
 Phases 1–3 retain their authentication, catalog, vehicle fitment, RBAC, inventory,
 cart and checkout workflows. The matching backend PR changes application JSON to
 a success/error envelope; the shared transport unwraps it once and returns the
@@ -15,6 +18,8 @@ existing business types to components.
 | @tanstack/react-query | 5.108.2 | Queries, mutations and invalidation |
 | @tanstack/query-core | 5.108.2 | Required transitive query core |
 | @standard-schema/utils | 0.3.0 | Required resolver utility |
+| react-toastify | 11.2.0 | Approved API toast follow-up |
+| clsx (transitive) | 2.1.1 | Required by React Toastify; not directly imported |
 
 Zod was already pinned transitively and is now a direct dependency. npm relocated
 existing ESLint Ajv/json-schema-traverse packages without changing their versions.

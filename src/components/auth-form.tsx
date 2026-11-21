@@ -10,6 +10,8 @@ import { apiAction, friendlyError } from "@/lib/api";
 import { authSchema, type AuthValues } from "@/lib/forms/schemas";
 import { FormErrors } from "@/lib/forms/form-errors";
 import { authStateChanged } from "@/lib/query/provider";
+import { ApiError } from "@/lib/api/contracts";
+import { notifyError, notifySuccess } from "@/lib/notifications";
 
 export function AuthForm({ register: signup = false }: { register?: boolean }) {
   const router = useRouter();
@@ -21,14 +23,17 @@ export function AuthForm({ register: signup = false }: { register?: boolean }) {
     const values = submission.current.values;
     submission.current.values = null;
     if (!values) throw new Error("Invalid form submission");
-    if (signup) await apiAction({ path: "/api/account/register", method: "POST", payload: values });
+    if (signup) await apiAction({ path: "/api/account/register", method: "POST", payload: values, notifications: { success: false } });
     const result = await signIn("credentials", { email: values.email, password: values.password, redirect: false });
     if (!result?.ok || result.error) throw new Error("Invalid sign-in");
     await client.cancelQueries();
     client.removeQueries({ type: "inactive" });
     await client.resetQueries({ type: "active" });
-    await apiAction({ path: "/api/cart/merge", method: "POST", payload: {} });
+    await apiAction({ path: "/api/cart/merge", method: "POST", payload: {}, notifications: { success: false } });
     router.push(signup ? "/verify-email" : "/account"); router.refresh(); authStateChanged();
+    notifySuccess(signup ? "Account created. Email verification is optional." : "Signed in.");
+  }, onError: failure => {
+    if (!(failure instanceof ApiError)) notifyError(failure, failure.message === "Invalid sign-in" ? "Unable to sign in. Check your email and password." : undefined);
   }, onSettled: () => { submission.current = { values: null, pending: false }; } });
   const error = mutation.error?.message === "Invalid sign-in" ? "Unable to sign in. Check your email/password, or try signing in if your account was just created." : mutation.error ? friendlyError(mutation.error) : "";
   function submit(event: FormEvent<HTMLFormElement>) {

@@ -10,6 +10,8 @@ order confirmations and pending-order cancellation. See [Phase 3 review](docs/ph
 and [Phase 2 review](docs/phase-2.md). Payment verification/fulfillment remain Phase 4.
 See [forms/API migration](docs/forms-api-migration.md) for React Hook Form, Zod,
 TanStack Query, shared client/server fetchers and the current response contract.
+See [toast notifications](docs/toast-notifications.md) for shared API success/error
+messages, action-specific fallbacks and notification lifecycle.
 See [authentication migration](docs/authentication-migration.md) for current routes,
 required secrets and cookie/CSRF behavior, replacing the old Django-session flow.
 

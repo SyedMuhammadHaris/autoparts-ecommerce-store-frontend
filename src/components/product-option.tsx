@@ -14,7 +14,7 @@ export function ProductOption({ variants }: { variants: Variant[] }) {
       if (!variant) return;
       const cart = await client.fetchQuery({ queryKey: ["api", "/api/cart"], queryFn: ({ signal }) => clientFetch<Cart>({ path: "/api/cart", signal }), staleTime: 0 });
       const quantity = (cart.items.find(item => item.variant === variant.id)?.quantity ?? 0) + 1;
-      await apiAction({ path: "/api/cart", method: "PUT", payload: { variant: variant.id, quantity } });
+      await apiAction({ path: "/api/cart", method: "PUT", payload: { variant: variant.id, quantity }, notifications: { success: "Added to your cart." } });
     }, onSuccess: () => client.invalidateQueries({ queryKey: ["api", "/api/cart"] }) });
   if (!variant) return <p>This product is currently unavailable.</p>;
   return <div className="panel-form">

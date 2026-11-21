@@ -10,19 +10,20 @@ import { useApiQuery, useApiMutation } from "@/lib/query/hooks";
 import { authStateChanged } from "@/lib/query/provider";
 import { profileSchema } from "@/lib/forms/schemas";
 import { FormErrors } from "@/lib/forms/form-errors";
+import { notifyError, notifySuccess } from "@/lib/notifications";
 
 export default function AccountPage() {
   const router = useRouter();
   const account = useApiQuery<{ user: User }>({ path: "/api/account/me" });
   const user = account.data?.user;
   const form = useForm<{ name: string }>({ resolver: zodResolver(profileSchema), values: { name: user?.name ?? "" } });
-  const update = useApiMutation<{ user: User }, { name: string }>(payload => ({ path: "/api/account/me", method: "PATCH", payload }), ["/api/account/me"]);
+  const update = useApiMutation<{ user: User }, { name: string }>(payload => ({ path: "/api/account/me", method: "PATCH", payload, notifications: { success: "Your name has been updated." } }), ["/api/account/me"]);
   const [logoutError, setLogoutError] = useState("");
   const [leaving, setLeaving] = useState(false);
   async function logout() {
     setLeaving(true);
-    try { await signOut({ redirect: false }); router.push("/"); router.refresh(); authStateChanged(); }
-    catch (failure) { setLogoutError(friendlyError(failure)); setLeaving(false); }
+    try { await signOut({ redirect: false }); router.push("/"); router.refresh(); authStateChanged(); notifySuccess("Signed out."); }
+    catch (failure) { setLogoutError(friendlyError(failure)); notifyError(failure); setLeaving(false); }
   }
   return <main id="main-content" className="form-page"><h1>My account</h1>
     {(account.error || update.error || logoutError) && <p role="alert" className="form-error">{logoutError || friendlyError(account.error ?? update.error)}</p>}

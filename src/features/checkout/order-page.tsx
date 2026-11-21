@@ -9,7 +9,7 @@ import type { Order } from "./types";
 export function OrderPage({ reference }: { reference: string }) {
   const query = useApiQuery<Order>({ path: "/api/orders/{reference}", pathParams: { reference } });
   const order = query.data;
-  const cancel = useApiMutation<Order, void>(() => ({ path: "/api/orders/{reference}/cancel", pathParams: { reference }, method: "POST", payload: {} }), ["/api/orders"]);
+  const cancel = useApiMutation<Order, void>(() => ({ path: "/api/orders/{reference}/cancel", pathParams: { reference }, method: "POST", payload: {}, notifications: { success: "Order cancelled." } }), ["/api/orders"]);
   const error = query.error ?? cancel.error;
   return <main id="main-content" className="catalog-page"><p className="eyebrow">Order confirmation</p><h1>Your order.</h1>
     {error && <p role="alert" className="form-error">{friendlyError(error)} <button onClick={() => query.refetch()}>Refresh order</button></p>}

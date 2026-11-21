@@ -1,11 +1,12 @@
 # Work status
 
 - Current phase: Phases 1–3 merged by user confirmation. Approved pre-Phase-4 forms/API/response refactor implemented and verified.
-- Current milestone: RHF/Zod forms, TanStack Query and coordinated response transport complete; user approved commits in both repositories.
+- Current milestone: Core migration committed as c462f3a; same-branch API toast follow-up implemented and verified. User approved the toast commit.
 - Active branch: `refactor/forms-api-responses` in both repositories.
 - Baseline: Frontend main `8e9eaa9` (Phase 3 PR #6); backend main `bd17d12` (Phase 3 PR #8). Both were clean before branching.
 - Authorization: User approved branches, exact packages, lockfile updates, Docker installations/builds and migration scope.
-- Git/PR status: User explicitly approved commits; this change records the verified implementation and handoff. Nothing pushed and no PR created. Prior Phase 3 merges confirmed; wait for confirmation of this refactor's outcomes.
+- Git/PR status: Core frontend/backend commits created after approval (c462f3a / 26d3bd0). Toast follow-up approved for a focused frontend commit on the current branch. Nothing pushed or PR-created by the agent; no new merge outcome assumed.
+- Toast scope approved: react-toastify 11.2.0 and transitive clsx 2.1.1; Docker lockfile/install/build changes on the current branch. One root container, shared API success/error notifications, query-error deduplication and preserved inline validation/recovery. No backend/environment changes. See docs/toast-notifications.md.
 
 ## Completed refactor
 
@@ -30,6 +31,8 @@
 
 ## Verification
 
+- Toast follow-up: 110 tests across 20 suites passed in Docker, including real ToastContainer accessibility, deduplication, safe error text, authentication cleanup, mutation messages and query retry notifications. Lint, production build, TypeScript and server-only boundary checks passed. No new native-browser visual QA was performed.
+- Toast installation added only react-toastify 11.2.0 and required transitive clsx 2.1.1. Local frontend dependency volume refreshed and preview service healthy at http://localhost:3000. Backend working tree unchanged; backend tests below are the prior core-refactor results.
 - 100 frontend tests across 18 suites passed in 8.371s; lint, production build, TypeScript and actual compiler server-only boundary probe passed in Docker.
 - Tests cover transport verbs/query/path encoding/CSRF/error parsing, form schemas, explicit zero tax, year ranges, auth cache reset/access denial, optional OTP, RBAC, vehicle selection, checkout stable retry/recovery and order cancellation.
 - Matching backend: 113 tests passed on disposable PostgreSQL; Ruff/format/Django/migration consistency passed with no schema changes.

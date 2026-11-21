@@ -4,7 +4,9 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { readSiteUrl } from "@/lib/env";
 import "./globals.css";
+import "react-toastify/dist/ReactToastify.css";
 import { ApiProvider } from "@/lib/query/provider";
+import { ToastHost } from "@/components/toast-host";
 
 export const metadata: Metadata = {
   metadataBase: new URL(readSiteUrl(process.env.NEXT_PUBLIC_SITE_URL)),
@@ -26,6 +28,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {children}
           <SiteFooter />
         </div></ApiProvider>
+        <ToastHost />
       </body>
     </html>
   );

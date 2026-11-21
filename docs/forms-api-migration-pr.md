@@ -5,8 +5,14 @@ split into focused components; catalog GET URLs and server rendering remain.
 Authentication clears private query state, credentials stay out of mutation-cache
 variables, and checkout retains explicit idempotent retry/recovery behavior.
 
+The approved frontend follow-up adds react-toastify 11.2.0 (transitive clsx 2.1.1)
+with one global host. Shared mutations display backend success messages or action
+fallbacks and readable API errors; query errors notify after retries. Expected
+anonymous account checks stay quiet. Toasts deduplicate, clear on authentication
+changes, and preserve inline validation/recovery guidance.
+
 Uses approved exact package pins and Docker-generated lockfile. Verification:
-100 tests across 18 suites, lint, TypeScript, production build and compiler
+110 tests across 20 suites, lint, TypeScript, production build and compiler
 server-only boundary. Live Phase 2/3 BFF and JWT refresh/logout smoke passed,
 including real scheduled reservation expiry. No environment additions, real
 email/payment/upload action or deployment.
