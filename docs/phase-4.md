@@ -41,7 +41,7 @@ build, TypeScript and server-only boundary checks passed. No visual browser QA.
 
 ## Remaining Phase 4 scope
 
-Returns and refunds follow in separate commits. Private
+Private
 proof uploads require the user's storage choice and remain pending; no public
 proof-link workaround is introduced. No deployment or external courier integration.
 
@@ -60,4 +60,28 @@ Nested form errors now render for quantity arrays as well as simple fields.
 
 125 tests passed across 24 suites; lint, build, TypeScript and server boundary
 checks passed. Backend migrations and roles applied, no policy or real returns
-seeded. Refund ledger is the next feature commit.
+seeded. Refund ledger follows as a separate feature commit.
+
+## Manual refund ledger
+
+`/admin/refunds` has separate authorization, review and resolution components.
+Staff enter an inspected return request number, positive amount and policy basis.
+The backend caps pending plus completed refunds at the amount actually paid,
+including under concurrent requests. Identical retries reuse the request key.
+
+Authorization sends no money. Completion requires an offline receipt and explicit
+confirmation that it was paid/checked. Cancellation applies to unpaid pending
+authorizations only. Completed decisions are immutable. Customer return panels
+show refund amounts/status without exposing offline receipt references or staff
+resolution notes. No automatic tax/shipping allocation or bank payout is made.
+
+129 tests across 25 suites, lint, production build, TypeScript and compiler boundary
+checks passed. Backend 137 tests plus Ruff/format/Django/migration/schema checks
+passed. Local services restarted and healthy. HTTP smoke: home/admin return/refund
+page shells 200; unauthenticated refund API 401; unowned return 404; origin/CSRF-free
+refund mutation 403. This is not native-browser visual QA or live payment evidence.
+
+Receiving bank details and complete enabled return policy must be entered manually
+in admin. No new dependencies/env, real financial records, seeded return policy,
+external storage request or deployment. Private proof uploads remain deferred to
+the user's storage decision; Phase 4 is not fully closed and Phase 5 has not started.

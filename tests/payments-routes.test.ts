@@ -28,3 +28,14 @@ it("limits fulfillment to list/detail routes and forwards only the page query", 
   expect(proxy).toHaveBeenLastCalledWith(expect.any(Request), "/admin/fulfillment/1/", ["GET", "POST"]);
   expect((await adminPost(new Request("http://localhost:3000/api/admin/fulfillment/1/skip"), { params: Promise.resolve({ path: ["fulfillment", "1", "skip"] }) })).status).toBe(404);
 });
+
+it("allowlists return/refund collection and detail routes without arbitrary actions", async () => {
+  const reference = "a".repeat(24);
+  await orderPost(new Request("http://localhost:3000/api/orders/test/returns", { method: "POST" }), { params: Promise.resolve({ path: [reference, "returns"] }) });
+  expect(proxy).toHaveBeenLastCalledWith(expect.any(Request), `/orders/${reference}/returns/`, ["GET", "POST"]);
+  await adminGet(new Request("http://localhost:3000/api/admin/returns"), { params: Promise.resolve({ path: ["returns"] }) });
+  expect(proxy).toHaveBeenLastCalledWith(expect.any(Request), "/admin/returns/", ["GET"]);
+  await adminPost(new Request("http://localhost:3000/api/admin/refunds", { method: "POST" }), { params: Promise.resolve({ path: ["refunds"] }) });
+  expect(proxy).toHaveBeenLastCalledWith(expect.any(Request), "/admin/refunds/", ["GET", "POST"]);
+  expect((await adminPost(new Request("http://localhost:3000/api/admin/refunds/1/complete"), { params: Promise.resolve({ path: ["refunds", "1", "complete"] }) })).status).toBe(404);
+});

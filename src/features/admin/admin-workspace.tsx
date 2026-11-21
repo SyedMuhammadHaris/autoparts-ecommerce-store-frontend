@@ -51,6 +51,7 @@ export function AdminWorkspace() {
     {(user.is_superuser || user.permissions.includes("payments.view_payment")) && <p><Link href="/admin/payments">Manage payments</Link></p>}
     {(user.is_superuser || user.permissions.includes("orders.view_order")) && <p><Link href="/admin/fulfillment">Manage fulfillment</Link></p>}
     {(user.is_superuser || user.permissions.includes("returns.view_returnrequest")) && <p><Link href="/admin/returns">Manage returns</Link></p>}
+    {(user.is_superuser || user.permissions.includes("payments.view_refundrecord")) && <p><Link href="/admin/refunds">Manage manual refunds</Link></p>}
     <nav className="admin-tabs" aria-label="Management sections">{visible.map(item => <button className="secondary-button" aria-current={resource.key === item.key ? "page" : undefined} key={item.key} onClick={() => chooseResource(item.key)}>{item.label}</button>)}</nav>
     {error && <p role="alert" className="form-error">{friendlyError(error)} <button onClick={() => queries.forEach(query => { void query.refetch(); })}>Retry loading</button></p>}
     {notice && <p role="status">{notice}</p>}
