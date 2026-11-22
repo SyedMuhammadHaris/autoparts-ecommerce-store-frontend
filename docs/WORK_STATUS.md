@@ -1,5 +1,22 @@
 # Work status
 
+- Current phase: Phase 6, authorized after user-confirmed Phase 5 merges.
+- Active branches: phase-6 in both repositories; focused commits, no push/PR creation.
+- Baselines: Backend main 2cabcdf; frontend main f44e77d; clean before branching.
+- Completed implementation: API throttling/cache safety; report indexes/query budget; canonical metadata, private indexing policy, sitemap and escaped structured data; accessible form errors.
+- Verification: Backend 178 tests passed plus Ruff/Django/migration/schema checks. Frontend 162 tests/36 suites and lint/build/type/boundary checks passed before the approved dependency overrides; re-verification underway.
+- Dependencies: User approved scoped glob 14.0.6/minimatch 11.0.9 overrides and necessary transitives, lockfile changes, Docker refresh/rebuild and full checks. Existing direct pins retained.
+- Environment: Optional frontend SITE_INDEXING_ENABLED=false; no required configuration changes. Private environment files untouched. No backend additions.
+- Runtime: Additive report index migrations applied locally; SMTP remains disabled. No real payment/email/cloud/deployment actions.
+- Remaining: Finish override verification and HTTP smoke; manual browser/keyboard/Core Web Vitals review remains outstanding because Computer Use stopped for URL policy verification. Storage/private proof integration remains deferred until before deployment.
+- PR state: Phase 5 merges confirmed by user. Phase 6 not pushed or merged; no outcome assumed.
+- Next: Review Phase 6 commits and remaining readiness gates. Phase 7 requires separate approval.
+- Details: docs/phase-6.md.
+
+## Previous Phase 5 status (historical)
+
+# Work status
+
 - Current phase: Phase 5 implemented on phase-5 in both repositories. Phase 6 requires separate approval.
 - Completed: Dashboard/report export, customer/staff controls and audit filters, CMS/store settings, coupons, moderated verified-purchase reviews, durable order notifications.
 - Approved dependencies: No new packages or lockfile changes.
