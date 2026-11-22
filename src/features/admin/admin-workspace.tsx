@@ -48,6 +48,7 @@ export function AdminWorkspace() {
   if (!user?.is_staff) return <main id="main-content" className="state-panel"><h1>Staff access required.</h1><p>Sign in with an authorized staff account.</p><Link href="/login">Sign in</Link></main>;
   return <main id="main-content" className="catalog-page"><p className="eyebrow">Store workspace</p><h1>Catalog management.</h1>
     <p>Manage parts, inventory and checkout configuration. Shipping rates and tax policy must be explicitly configured before ordering.</p>
+    {(user.is_superuser || user.permissions.includes("orders.view_reports")) && <p><Link href="/admin/dashboard">Store dashboard and reports</Link></p>}
     {(user.is_superuser || user.permissions.includes("payments.view_payment")) && <p><Link href="/admin/payments">Manage payments</Link></p>}
     {(user.is_superuser || user.permissions.includes("orders.view_order")) && <p><Link href="/admin/fulfillment">Manage fulfillment</Link></p>}
     {(user.is_superuser || user.permissions.includes("returns.view_returnrequest")) && <p><Link href="/admin/returns">Manage returns</Link></p>}

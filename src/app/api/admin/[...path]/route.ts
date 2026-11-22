@@ -6,6 +6,19 @@ const resources = new Set(["categories", "brands", "products", "variants", "attr
 type Context = { params: Promise<{ path: string[] }> };
 async function handle(request: Request, context: Context) {
   const path = (await context.params).path;
+  if (path[0] === "reports") {
+    if (path.length !== 2 || !["dashboard", "orders-export"].includes(path[1])) return routeErrorResponse(404, "Not found.", "NOT_FOUND");
+    const query = new URL(request.url).searchParams;
+    const forwarded = new URLSearchParams();
+    for (const key of ["start", "end", "low_stock"]) {
+      const value = query.get(key);
+      if (value !== null) {
+        if (value.length > 10) return routeErrorResponse(400, "Invalid report filters.", "VALIDATION_ERROR");
+        forwarded.set(key, value);
+      }
+    }
+    return proxyApi(request, `/admin/reports/${path[1]}/?${forwarded}`, ["GET"]);
+  }
   if (["fulfillment", "returns", "refunds"].includes(path[0])) {
     if (path.length > 2 || path[1] && !/^[1-9][0-9]*$/.test(path[1])) return routeErrorResponse(404, "Not found.", "NOT_FOUND");
     const page = new URL(request.url).searchParams.get("page");

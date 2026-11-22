@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+.report-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; }
+.report-metrics dt { font-size: .875rem; }
+.report-metrics dd { margin: .5rem 0 0; font-size: 1.5rem; font-weight: 600; }
+
 @theme {
   --color-ink: #152629;
   --color-paper: #f7f6f1;

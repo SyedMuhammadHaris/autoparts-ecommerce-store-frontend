@@ -1,5 +1,19 @@
 # Work status
 
+- Current phase: Phase 5; Phase 4 merge confirmed. Storage/private proof uploads deferred to final integration before deployment.
+- Active branch: phase-5 in both repositories; feature-wise commits approved.
+- Baseline: Frontend main 86a2aca; backend main 5b6050f; clean before branching.
+- Current milestone: Dashboard, separate report filter/summary/export components and strict BFF allowlists implemented and verified; ready for feature commit.
+- Remaining approved sequence: Staff/customers/audit, CMS, coupon promotions, moderated verified-purchase reviews, notifications.
+- Dependencies/environment: No additions for reporting; private environment files untouched.
+- Business rules: One non-stacking merchandise coupon before tax/excluding shipping; explicit limits/dates/minimum; per-account limits require sign-in. One moderated review per product/account from delivered/completed purchase; email verification optional.
+- Verification: 132 tests/26 suites passed; updated BFF suite 5 tests passed; lint, build, TypeScript and boundary checks passed. No new browser visual QA.
+- PR status: Not pushed or PR-created by agent.
+- Details: docs/phase-5.md.
+
+## Previous work status (historical)
+
+
 - Current phase: Phase 4. Previous page/component PR merged by user confirmation; local main baseline 857d1e2.
 - Active branch: `phase-4` in both repositories; feature-wise commits authorized by user.
 - Current milestone: Payments def7217, fulfillment d40455a and returns 74eb9a9 committed. Manual refund UI implemented/verified; feature commit authorized.
