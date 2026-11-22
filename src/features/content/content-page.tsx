@@ -3,10 +3,11 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { readPublicPage } from "@/lib/server/content";
 import { ApiError } from "@/lib/api/contracts";
+import { publicRobots } from "@/lib/seo/policy";
 
 export type ContentPageProps = { params: Promise<{ slug: string }> };
 export async function contentMetadata({ params }: ContentPageProps): Promise<Metadata> {
-  try { const page = await readPublicPage((await params).slug); return { title: page.title, description: page.description || undefined, alternates: { canonical: `/pages/${page.slug}` } }; }
+  try { const page = await readPublicPage((await params).slug); return { title: page.title, description: page.description || undefined, robots: publicRobots(), alternates: { canonical: `/pages/${page.slug}` } }; }
   catch { return { title: "Page unavailable", robots: { index: false } }; }
 }
 export async function ContentPage({ params }: ContentPageProps) {

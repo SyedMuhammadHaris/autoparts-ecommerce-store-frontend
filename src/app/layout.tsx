@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { ContentFooter } from "@/features/content/content-footer";
 import { readSiteUrl } from "@/lib/env";
+import { publicRobots } from "@/lib/seo/policy";
 import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
 import { ApiProvider } from "@/lib/query/provider";
@@ -12,8 +13,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(readSiteUrl(process.env.NEXT_PUBLIC_SITE_URL)),
   title: { default: "Autoparts | Built for the road ahead", template: "%s | Autoparts" },
   description: "Explore automotive parts for Pakistan, check vehicle compatibility and build your cart.",
-  // The foundation is not a launched storefront. Revisit in the SEO milestone.
-  robots: { index: false, follow: false },
+  robots: publicRobots(),
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
