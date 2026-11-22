@@ -3,12 +3,13 @@
 - Current phase: Phase 6, authorized after user-confirmed Phase 5 merges.
 - Active branches: phase-6 in both repositories; focused commits, no push/PR creation.
 - Baselines: Backend main 2cabcdf; frontend main f44e77d; clean before branching.
+- Current milestone: Implementation and automated/local HTTP verification complete; manual readiness review pending.
 - Completed implementation: API throttling/cache safety; report indexes/query budget; canonical metadata, private indexing policy, sitemap and escaped structured data; accessible form errors.
-- Verification: Backend 178 tests passed plus Ruff/Django/migration/schema checks. Frontend 162 tests/36 suites and lint/build/type/boundary checks passed before the approved dependency overrides; re-verification underway.
-- Dependencies: User approved scoped glob 14.0.6/minimatch 11.0.9 overrides and necessary transitives, lockfile changes, Docker refresh/rebuild and full checks. Existing direct pins retained.
+- Verification: Backend 179 tests passed plus Ruff/Django/migration/schema checks. Frontend 162 tests/36 suites and lint/build/type/boundary checks passed after the approved dependency overrides.
+- Dependencies: Approved scoped glob 14.0.6/minimatch 11.0.9 overrides applied with path-scurry 3.0.0 and @isaacs/nonrecursive-glob-match 1.1.0; lockfile updated and Docker checks passed. OSV returned no advisories for 33 Python/698 npm locked versions. npm audit unavailable. Existing direct pins retained.
 - Environment: Optional frontend SITE_INDEXING_ENABLED=false; no required configuration changes. Private environment files untouched. No backend additions.
-- Runtime: Additive report index migrations applied locally; SMTP remains disabled. No real payment/email/cloud/deployment actions.
-- Remaining: Finish override verification and HTTP smoke; manual browser/keyboard/Core Web Vitals review remains outstanding because Computer Use stopped for URL policy verification. Storage/private proof integration remains deferred until before deployment.
+- Runtime: Additive report index migrations applied locally; all five local services healthy. HTTP smoke passed. SMTP remains disabled. No real payment/email/cloud/deployment actions.
+- Remaining: Manual browser/keyboard/Core Web Vitals review remains outstanding because Computer Use stopped for URL policy verification. Storage/private proof integration remains deferred until before deployment.
 - PR state: Phase 5 merges confirmed by user. Phase 6 not pushed or merged; no outcome assumed.
 - Next: Review Phase 6 commits and remaining readiness gates. Phase 7 requires separate approval.
 - Details: docs/phase-6.md.
@@ -97,3 +98,5 @@
 - Accepted existing limits remain: NextAuth v4 maintenance mode, ESLint 9 EOL, local shared-IP throttling and single-process refresh coordination before deployment/replicas.
 
 Phase 5 feature commits (frontend): reports 3a76be7; management 9731323; CMS 3479eca; coupons 93e517f; reviews 9f20c82; notifications 6fa604a. Final review documentation committed separately.
+
+Phase 6 feature commits: Headers 4739ce3; request deduplication f29cd6c; SEO c4dd6eb; accessible forms f232688; dependency fixes 3ce9339. Final regression/operations notes are committed separately.

@@ -78,10 +78,11 @@ index rollout/locking must be reviewed against real table sizes in Phase 7.
 
 ## Verification evidence
 
-- Backend: 178 tests passed on disposable host PostgreSQL, including existing
+- Backend: 179 tests passed on disposable host PostgreSQL, including existing
   simultaneous checkout, idempotency, payment, refund, ownership and notification
   lease/retry coverage. New tests cover throttle bypass/failure behavior, published
-  sitemap privacy/filter validation and fixed catalog query growth from 1 to 6 products.
+  sitemap privacy/filter validation and fixed catalog query growth from 1 to 6 products. A 1,001-page fixture verifies
+  cursor progression without omissions or duplicates.
 - Ruff lint/format, Django checks, migration drift and OpenAPI route/reference tests
   passed. No production configuration/security certification is implied.
 - Frontend baseline with Phase 6 code: 162 tests/36 suites passed, lint, build,
@@ -117,3 +118,24 @@ index rollout/locking must be reviewed against real table sizes in Phase 7.
 - https://nextjs.org/docs/app/api-reference/functions/generate-metadata
 - https://github.com/advisories/GHSA-g3hv-75wg-m249
 - https://github.com/advisories/GHSA-3g3m-2fjr-6pw4
+## Final dependency and runtime verification
+
+The approved override tree passed lint, all 162 Jest tests across 36 suites,
+compiler server-only boundary verification, clean production build and strict
+TypeScript checking inside the isolated Docker verification image. A subsequent
+OSV scan checked 698 unique locked npm package versions and returned no advisories
+on 2026-11-22. The 33-package Python scan also returned no advisories. These are
+point-in-time advisory results, not a guarantee of absence of vulnerabilities.
+The npm audit endpoint remained unavailable and is not reported as passed.
+
+The local HTTP smoke passed after dependency refresh: public home/robots/sitemap
+200; local noindex and canonical metadata; empty local sitemap; private page shells
+with noindex headers/metadata; notification/report anonymous API 401; cross-origin
+notification POST 403; unpublished product/page 404; invalid vehicle filter 400.
+The script prints response timings only as development observations. It creates
+no accounts, orders, payments or mail. Run inside the frontend container with
+node scripts/phase6-smoke.mjs while local indexing remains disabled.
+
+Initial smoke attempts encountered startup/dependency-refresh interruption and a
+trailing-slash-only canonical assertion mismatch. The assertion now normalizes
+URLs, and the complete repeat passed. No failed run is counted as a passing check.

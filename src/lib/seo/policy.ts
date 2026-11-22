@@ -19,7 +19,8 @@ export function indexingEnabled(): boolean {
 }
 
 export function publicRobots() {
-  return { index: indexingEnabled(), follow: indexingEnabled() };
+  const enabled = indexingEnabled();
+  return { index: enabled, follow: enabled };
 }
 
 export function absoluteUrl(path: string): string {

@@ -1,9 +1,8 @@
 # autoparts-ecommerce-store-frontend
 
-Phase 2 storefront: Next.js App Router, strict TypeScript, Tailwind
+Next.js App Router storefront, strict TypeScript, Tailwind
 tokens, accessible base layout, error/loading/not-found states, and Jest with
-React Testing Library. The page clearly communicates that the store is in
-preparation for ordering. NextAuth/Simple JWT, optional email OTP, customer accounts, catalog
+React Testing Library. NextAuth/Simple JWT, optional email OTP, customer accounts, catalog
 listings/details/variants and a permission-aware catalog admin are implemented.
 Phase 3 adds carts, merging, quoted checkout, shipping configuration, private
 order confirmations and pending-order cancellation. See [Phase 3 review](docs/phase-3.md)
@@ -26,6 +25,7 @@ Manually populate `.env.local` using `.env.example`:
 | Variable | Required | Purpose | Local example |
 | --- | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Yes | Public canonical site origin; used for metadata | `http://localhost:3000` |
+| `SITE_INDEXING_ENABLED` | Optional | Server-only launch gate; keep false locally/previews | `false` |
 | `NEXTAUTH_URL` | Yes | Public authentication origin; must match site origin | `http://localhost:3000` |
 | `NEXTAUTH_SECRET` | Yes | Server-only cookie encryption secret | Generate at least 32 cryptographically random bytes, independently of backend signing key |
 | `BACKEND_API_URL` | Yes for BFF | Server-only Django base URL inside Compose | `http://backend:8000/api/v1` |
@@ -91,8 +91,9 @@ run the Next compiler. The normal clean production build runs after this probe.
 Missing configuration reports variable names through configuration validation;
 the public BFF response remains generic and never exposes configuration values.
 
-`robots.txt` disallows indexing during foundation development, alongside metadata
-noindex. Image storage provider selection and SDKs are deferred by the user.
+`robots.txt` blocks crawling by default, alongside metadata noindex. Set the server-only
+SITE_INDEXING_ENABLED flag only during an approved public HTTPS launch. Private routes
+retain noindex metadata and headers even when public indexing is enabled. Image storage provider selection and SDKs are deferred by the user.
 
 ## Verification
 
@@ -135,3 +136,5 @@ Read [docs/WORK_STATUS.md](docs/WORK_STATUS.md) for the current milestone,
 verification results and user-confirmed PR state.
 
 Phase 5 adds reporting, customer/staff administration, CMS, coupons, moderated reviews and durable notifications. See [Phase 5 operations](docs/phase-5.md) and [review notes](docs/phase-5-pr.md).
+
+See [Phase 6 readiness](docs/phase-6.md) for security, performance, SEO, accessibility, dependency verification and outstanding launch gates. Production deployment requires separate Phase 7 approval.
