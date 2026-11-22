@@ -4,7 +4,19 @@ import { GET as orderGet, POST as orderPost } from "@/app/api/orders/[[...path]]
 import { proxyApi } from "@/lib/server/proxy";
 jest.mock("@/lib/server/proxy", () => ({ proxyApi: jest.fn().mockResolvedValue(new Response(null, { status: 204 })) }));
 const proxy = proxyApi as jest.Mock;
+it("limits reports to read-only known endpoints and bounded allowlisted filters", async () => {
+  await adminGet(new Request("http://localhost:3000/api/admin/reports/dashboard?start=2026-11-01&end=2026-11-30&destination=evil"), { params: Promise.resolve({ path: ["reports", "dashboard"] }) });
+  expect(proxy).toHaveBeenLastCalledWith(expect.any(Request), "/admin/reports/dashboard/?start=2026-11-01&end=2026-11-30", ["GET"]);
+  expect((await adminGet(new Request("http://localhost:3000/api/admin/reports/arbitrary"), { params: Promise.resolve({ path: ["reports", "arbitrary"] }) })).status).toBe(404);
+});
 beforeEach(() => proxy.mockClear());
+it("keeps customer status mutation separate from read-only account/order lookup", async () => {
+  await adminGet(new Request("http://localhost:3000/api/admin/customers/7/orders?page=2"), { params: Promise.resolve({ path: ["customers", "7", "orders"] }) });
+  expect(proxy).toHaveBeenLastCalledWith(expect.any(Request), "/admin/customers/7/orders/?page=2", ["GET"]);
+  await adminPost(new Request("http://localhost:3000/api/admin/customers/7/status", { method: "POST" }), { params: Promise.resolve({ path: ["customers", "7", "status"] }) });
+  expect(proxy).toHaveBeenLastCalledWith(expect.any(Request), "/admin/customers/7/status/", ["POST"]);
+  expect((await adminGet(new Request("http://localhost:3000/api/admin/customers/7/password"), { params: Promise.resolve({ path: ["customers", "7", "password"] }) })).status).toBe(404);
+});
 it("allowlists owned payment endpoints without broadening the order proxy", async () => {
   const path = ["a".repeat(24), "payment"];
   await orderGet(new Request("http://localhost:3000/api/orders/test/payment"), { params: Promise.resolve({ path }) });

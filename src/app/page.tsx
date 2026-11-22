@@ -1,5 +1,7 @@
-import { HomeScreen } from "@/features/home/home-screen";
+import { HomeContent } from "@/features/content/home-content";
+
+export const dynamic = "force-dynamic";
 
 export default function Page() {
-  return <HomeScreen />;
+  return <HomeContent />;
 }

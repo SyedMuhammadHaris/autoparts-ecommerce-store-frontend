@@ -1,5 +1,18 @@
 # Work status
 
+- Current phase: Phase 5 implemented on phase-5 in both repositories. Phase 6 requires separate approval.
+- Completed: Dashboard/report export, customer/staff controls and audit filters, CMS/store settings, coupons, moderated verified-purchase reviews, durable order notifications.
+- Approved dependencies: No new packages or lockfile changes.
+- Decisions: Pending coupon usage releases on unpaid cancellation/expiry; confirmed/refunded orders retain usage. Email verification optional. Storage/private proof uploads deferred to final integration before deployment.
+- Configuration: Optional backend ORDER_EMAIL_ENABLED=false; existing SMTP configuration required only when explicitly enabling delivery. Private environment files never inspected or modified.
+- Verification: Backend 169 tests passed; Ruff/format, Django checks and migration drift checks passed. Frontend 151 tests across 34 suites passed; lint, production build, TypeScript and server boundary checks passed. No browser visual QA claimed.
+- Runtime: Phase 5 migrations applied locally. SMTP delivery remains disabled; automated mail tests use an in-memory mailbox.
+- PR status: Local feature-wise commits only; no pushes or PR creation, no merge assumed.
+- Next: User reviews and pushes both phase-5 branches; merge backend before frontend. See docs/phase-5-pr.md and docs/phase-5.md.
+
+## Previous work status (historical)
+
+
 - Current phase: Phase 4. Previous page/component PR merged by user confirmation; local main baseline 857d1e2.
 - Active branch: `phase-4` in both repositories; feature-wise commits authorized by user.
 - Current milestone: Payments def7217, fulfillment d40455a and returns 74eb9a9 committed. Manual refund UI implemented/verified; feature commit authorized.
@@ -65,3 +78,5 @@
 - Merge backend first, then frontend; update both runtime services together for the envelope contract. No DB migration or new env required.
 - Next: User pushes and reviews both branches/PRs, then confirms outcomes before Phase 4 approval.
 - Accepted existing limits remain: NextAuth v4 maintenance mode, ESLint 9 EOL, local shared-IP throttling and single-process refresh coordination before deployment/replicas.
+
+Phase 5 feature commits (frontend): reports 3a76be7; management 9731323; CMS 3479eca; coupons 93e517f; reviews 9f20c82; notifications 6fa604a. Final review documentation committed separately.

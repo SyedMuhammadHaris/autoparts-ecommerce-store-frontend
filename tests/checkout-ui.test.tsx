@@ -77,7 +77,12 @@ it("recovers a completed attempt before allowing a second checkout", async () =>
 });
 it("displays immutable order totals and cancels a pending order", async () => {
   const order = { ...quote, reference: "a".repeat(24), status: "pending", payment: { method: "cod", status: "pending_collection" }, address: { name: "Test", line1: "Test street", city: "Test city", country: "PK" }, items: [{ name: "Brake pad", sku: "PAD", quantity: 1, line_total: "1000.00" }], expires_at: new Date().toISOString(), history: [] };
-  request.mockResolvedValueOnce(order).mockResolvedValue({ ...order, status: "cancelled", payment: { ...order.payment, status: "cancelled" } });
+  let cancelled = false;
+  request.mockImplementation(async (path: string) => {
+    if (path.includes("/notifications")) return { count: 0, results: [], next: null, previous: null };
+    if (path.endsWith("/cancel")) cancelled = true;
+    return cancelled ? { ...order, status: "cancelled", payment: { ...order.payment, status: "cancelled" } } : order;
+  });
   render(<OrderPage reference={order.reference} />);
   fireEvent.click(await screen.findByRole("button", { name: "Cancel pending order" }));
   await waitFor(() => expect(screen.queryByRole("button", { name: "Cancel pending order" })).not.toBeInTheDocument());

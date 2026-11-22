@@ -26,6 +26,7 @@ export function AccountScreen() {
       <p>{user.email} · {user.email_verified ? "Email verified" : "Email not verified (optional)"}</p>
       {!user.email_verified && <p><Link href="/verify-email">Verify my email</Link> — you can keep using your account without verification.</p>}
       <ProfileForm user={user} disabled={leaving} />
+      <p><Link href="/account/notifications">View order notifications</Link></p>
       {user.is_staff && <p><Link href="/admin">Open administration</Link></p>}
       <button className="secondary-button" onClick={logout} disabled={leaving}>Sign out</button>
     </>}

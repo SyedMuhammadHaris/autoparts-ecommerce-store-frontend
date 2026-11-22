@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CatalogInvalidFilters, CatalogNotFound, readProduct } from "@/lib/server/catalog";
+import { readPublicPage } from "@/lib/server/content";
+import { ApiError } from "@/lib/api/contracts";
 
 // Check existence before a loading boundary starts streaming a 200 response.
 export async function proxy(request: NextRequest) {
   const slug = request.nextUrl.pathname.split("/")[2];
+  if (request.nextUrl.pathname.startsWith("/pages/")) {
+    try { await readPublicPage(slug); return NextResponse.next(); }
+    catch (error) {
+      if (error instanceof ApiError && error.status === 404) return NextResponse.rewrite(new URL("/_not-found", request.url), { status: 404, headers: { "Cache-Control": "no-store", "X-Robots-Tag": "noindex" } });
+      return new NextResponse("Page temporarily unavailable. Please try again shortly.", { status: 503, headers: { "Cache-Control": "no-store", "Retry-After": "30" } });
+    }
+  }
   try {
     await readProduct(slug, Object.fromEntries(request.nextUrl.searchParams));
     return NextResponse.next();
@@ -21,4 +30,4 @@ export async function proxy(request: NextRequest) {
     });
   }
 }
-export const config = { matcher: "/products/:slug" };
+export const config = { matcher: ["/products/:slug", "/pages/:slug"] };
