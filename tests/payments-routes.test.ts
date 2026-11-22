@@ -10,6 +10,13 @@ it("limits reports to read-only known endpoints and bounded allowlisted filters"
   expect((await adminGet(new Request("http://localhost:3000/api/admin/reports/arbitrary"), { params: Promise.resolve({ path: ["reports", "arbitrary"] }) })).status).toBe(404);
 });
 beforeEach(() => proxy.mockClear());
+it("keeps customer status mutation separate from read-only account/order lookup", async () => {
+  await adminGet(new Request("http://localhost:3000/api/admin/customers/7/orders?page=2"), { params: Promise.resolve({ path: ["customers", "7", "orders"] }) });
+  expect(proxy).toHaveBeenLastCalledWith(expect.any(Request), "/admin/customers/7/orders/?page=2", ["GET"]);
+  await adminPost(new Request("http://localhost:3000/api/admin/customers/7/status", { method: "POST" }), { params: Promise.resolve({ path: ["customers", "7", "status"] }) });
+  expect(proxy).toHaveBeenLastCalledWith(expect.any(Request), "/admin/customers/7/status/", ["POST"]);
+  expect((await adminGet(new Request("http://localhost:3000/api/admin/customers/7/password"), { params: Promise.resolve({ path: ["customers", "7", "password"] }) })).status).toBe(404);
+});
 it("allowlists owned payment endpoints without broadening the order proxy", async () => {
   const path = ["a".repeat(24), "payment"];
   await orderGet(new Request("http://localhost:3000/api/orders/test/payment"), { params: Promise.resolve({ path }) });

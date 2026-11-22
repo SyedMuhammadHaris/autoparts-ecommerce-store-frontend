@@ -33,4 +33,4 @@ export function resourceSchema(resource: Resource, editing: boolean) {
   });
 }
 export const stockSchema = z.object({ delta: z.string().regex(/^-?\d+$/, "Enter a whole quantity.").transform(Number).refine(value => value !== 0 && Math.abs(value) <= 1000000, "Use a nonzero adjustment between -1000000 and 1000000."), reason: z.string().trim().min(1).max(250) });
-export const rolesSchema = z.object({ groups: z.array(z.string().regex(/^[1-9][0-9]*$/)).max(3).transform(values => values.map(Number)) });
+export const rolesSchema = z.object({ groups: z.array(z.string().regex(/^[1-9][0-9]*$/)).max(16).transform(values => values.map(Number)) });

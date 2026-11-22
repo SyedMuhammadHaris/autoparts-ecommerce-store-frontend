@@ -23,3 +23,16 @@ Staff/customer/audit management; fixed-layout CMS; one-coupon promotions;
 moderated verified-purchase reviews; durable optional-SMTP notifications.
 Existing thin pages, separate forms, API toasts, CSRF, RBAC, backend authority,
 optional email verification and checkout recovery remain requirements.
+
+## Staff/customer/audit management
+
+`/admin/customers` separates search, pagination, account detail/registered orders
+and account status form. View/manage permissions differ; staff/superusers are
+excluded. Guest orders are never claimed by matching email. The existing staff
+editor searches users, protects superuser controls, manages allowlisted roles and
+enables/disables non-superusers. Disabling revokes sessions. Audit tab adds exact
+validated filters. BFF customer reads and status actions have separate method lists.
+
+136 frontend tests/27 suites, updated BFF suite 6, lint/build/TypeScript passed.
+Backend account/catalog/auth suite 33 and updated account suite 4 passed. Local
+customer permissions migrated; no real accounts modified by verification.
