@@ -36,3 +36,19 @@ validated filters. BFF customer reads and status actions have separate method li
 136 frontend tests/27 suites, updated BFF suite 6, lint/build/TypeScript passed.
 Backend account/catalog/auth suite 33 and updated account suite 4 passed. Local
 customer permissions migrated; no real accounts modified by verification.
+
+## Fixed-layout CMS
+
+Content pages, active banners/homepage sections and public store contact settings
+use existing audited admin forms, with length metadata and explicit draft defaults.
+HomeContent/ContentFooter load published content server-side with the same no-store
+transport. HomeScreen remains a pure presentation component with its original
+fallback. Body text is escaped and banner links are allowlisted; no raw HTML or
+page builder. `/pages/[slug]` has a thin server route/metadata delegate and preflight
+for real 404/503 responses. No uploads or storage dependency.
+
+Content Editor role is isolated from payments/staff controls. Public home displays
+up to 5 active banners, 8 sections and 50 page links. Dynamic root footer loading
+means routes render dynamically; Phase 6 will address cache/performance strategy.
+142 frontend tests/29 suites and 21 backend content/catalog/account tests passed;
+lint/build/TypeScript passed. No live content/contact details seeded.

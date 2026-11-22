@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { ContentFooter } from "@/features/content/content-footer";
 import { readSiteUrl } from "@/lib/env";
 import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ApiProvider><div className="site-shell">
           <SiteHeader />
           {children}
-          <SiteFooter />
+          <ContentFooter />
         </div></ApiProvider>
         <ToastHost />
       </body>

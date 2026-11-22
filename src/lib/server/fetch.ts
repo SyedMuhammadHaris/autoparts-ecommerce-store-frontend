@@ -5,7 +5,7 @@ import { ApiError, apiPath, responseData, requestMethod, type ApiOptions } from 
 type ServerOptions = ApiOptions & { accessToken?: string; guestToken?: string; requestId?: string };
 export async function serverFetch<T>(options: ServerOptions): Promise<T> {
   const path = apiPath(options);
-  if (!/^\/(auth|catalog|cart|checkout|orders|shipping|health|admin)\//.test(path)) throw new ApiError("Invalid backend path.", 400);
+  if (!/^\/(auth|catalog|cart|checkout|orders|shipping|health|admin|content)\//.test(path)) throw new ApiError("Invalid backend path.", 400);
   const { baseUrl, timeoutMs } = backendConfiguration();
   const method = requestMethod(options);
   const headers: Record<string, string> = { Accept: "application/json" };

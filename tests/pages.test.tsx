@@ -1,6 +1,6 @@
 import { renderWithQuery as render } from "./helpers/render";
 import { fireEvent, screen } from "@testing-library/react";
-import HomePage from "@/app/page";
+import { HomeScreen as HomePage } from "@/features/home/home-screen";
 import NotFound from "@/app/not-found";
 import ErrorPage from "@/app/error";
 import Loading from "@/app/loading";

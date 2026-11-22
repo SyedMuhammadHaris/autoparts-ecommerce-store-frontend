@@ -9,7 +9,7 @@ function fieldSchema(field: Field): z.ZodType {
   if (field.choices) return z.string().refine(value => field.choices!.some(choice => choice.value === value), "Choose a valid option.");
   if (["number", "year"].includes(field.type ?? "")) return z.string().regex(/^\d+$/, "Enter a whole number.").transform(Number).refine(value => Number.isSafeInteger(value) && (field.type === "year" ? value >= 1900 && value <= 2100 : value >= 0 && value <= 2147483647), "Number is outside the supported range.").refine(value => field.key !== "reservation_minutes" || value >= 5 && value <= 1440, "Use a reservation between 5 and 1440 minutes.");
   if (["money", "decimal"].includes(field.type ?? "")) return z.string().refine(value => field.optional && value === "" || (field.type === "money" ? /^\d{1,10}(\.\d{1,2})?$/ : /^\d{1,3}(\.\d{1,3})?$/).test(value), "Enter a valid nonnegative decimal.").refine(value => field.key !== "tax_percent" || value === "" || Number(value) <= 100, "Tax cannot exceed 100%.").transform(value => value === "" ? null : value);
-  let text = z.string().trim().max(field.type === "textarea" ? 10000 : field.type === "url" ? 2000 : field.key === "sku" ? 80 : 255);
+  let text = z.string().trim().max(field.maxLength ?? (field.type === "textarea" ? 10000 : field.type === "url" ? 2000 : field.key === "sku" ? 80 : 255));
   if (!field.optional) text = text.min(1, "This field is required.");
   return text.superRefine((value, context) => {
     if (!value) return;

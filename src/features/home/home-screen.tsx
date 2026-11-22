@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { ContentSections } from "@/features/content/content-sections";
+import type { PublicHome } from "@/features/content/types";
 
-export function HomeScreen() {
+export function HomeScreen({ content }: { content?: PublicHome | null }) {
   return (
     <main id="main-content">
       <section className="hero" aria-labelledby="hero-title">
@@ -34,6 +36,7 @@ export function HomeScreen() {
           Browse product options and availability, build your cart and review delivery at checkout.
         </p>
       </section>
+      {content && <ContentSections content={content} />}
     </main>
   );
 }

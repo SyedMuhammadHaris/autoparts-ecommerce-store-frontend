@@ -3,8 +3,8 @@
 - Current phase: Phase 5; Phase 4 merge confirmed. Storage/private proof uploads deferred to final integration before deployment.
 - Active branch: phase-5 in both repositories; feature-wise commits approved.
 - Baseline: Frontend main 86a2aca; backend main 5b6050f; clean before branching.
-- Current milestone: Reports committed 3a76be7; staff/customer/audit management verified and ready for feature commit.
-- Remaining approved sequence: CMS, coupon promotions, moderated verified-purchase reviews, notifications.
+- Current milestone: Reports 3a76be7 and management 9731323 committed; fixed-layout CMS verified and ready for feature commit.
+- Remaining approved sequence: Coupon promotions, moderated verified-purchase reviews, notifications.
 - Dependencies/environment: No additions for reporting; private environment files untouched.
 - Business rules: One non-stacking merchandise coupon before tax/excluding shipping; explicit limits/dates/minimum; per-account limits require sign-in. One moderated review per product/account from delivered/completed purchase; email verification optional.
 - Verification: 132 tests/26 suites passed; updated BFF suite 5 tests passed; lint, build, TypeScript and boundary checks passed. No new browser visual QA.

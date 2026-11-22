@@ -44,7 +44,7 @@ async function handle(request: Request, context: Context) {
     const query = path.length === 1 && page && /^[1-9][0-9]{0,8}$/.test(page) ? `?page=${page}` : "";
     return proxyApi(request, `/admin/${path.join("/")}/${query}`, path[2] ? ["POST"] : ["GET"]);
   }
-  if (!(resources.has(path[0]) || ["bank-accounts", "return-policies"].includes(path[0])) || path.length > 3 || path[1] && !/^[1-9][0-9]*$/.test(path[1]) || path[2] && !((path[0] === "inventory" && path[2] === "adjust") || (path[0] === "staff" && ["roles", "status"].includes(path[2])))) {
+  if (!(resources.has(path[0]) || ["bank-accounts", "return-policies", "pages", "banners", "homepage-sections", "store-settings"].includes(path[0])) || path.length > 3 || path[1] && !/^[1-9][0-9]*$/.test(path[1]) || path[2] && !((path[0] === "inventory" && path[2] === "adjust") || (path[0] === "staff" && ["roles", "status"].includes(path[2])))) {
     return routeErrorResponse(404, "Not found.", "NOT_FOUND");
   }
   const query = new URL(request.url).searchParams;
