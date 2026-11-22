@@ -79,3 +79,32 @@ readable as more resource-specific workflows are added.
 
 148 frontend tests/32 suites and 14 backend review/content/promotion tests passed;
 lint/build/TypeScript passed. Public API and private owner BFF methods are separate.
+
+## Durable notifications and final verification
+
+Transactional outbox consumption creates one immutable notification per event.
+Registered inboxes and guest-owned order notices enforce ownership; read updates
+are idempotent. Admin template editing and failed/disabled delivery retry require
+explicit permissions. Templates are plain text and accept only order_reference
+and event_label placeholders. Delivery metadata never exposes recipient addresses.
+
+Optional backend ORDER_EMAIL_ENABLED defaults to false. Leave it disabled for
+local testing. Before enabling, manually configure existing SMTP variables in
+.local.env (EMAIL_HOST, DEFAULT_FROM_EMAIL, provider credentials/port/TLS as needed).
+No frontend environment additions. Private environment files were not inspected.
+Celery polls durable pending deliveries with leases, bounded attempts and backoff;
+SMTP happens outside database locks. SMTP is at least once: a crash after provider
+acceptance can cause a duplicate. Disabled historical deliveries require explicit
+staff retry after enabling SMTP. Inactive-account delivery is suppressed.
+
+Final regression: backend 169 tests passed, including concurrency, ownership,
+moderation, coupon release/retention and notification lease/retry cases. Ruff,
+format, Django and migration checks passed. Frontend 151 tests in 34 suites,
+lint, production build, TypeScript and server boundary checks passed.
+No new dependencies, lockfile changes, real email, payment, courier or cloud calls.
+No browser visual QA performed. Phase 6 should assess performance/cache strategy,
+accessibility, security and SEO. CSV exports remain capped at 1,000 rows; reporting
+uses explicit date/current-state semantics. Storage and private proof uploads remain
+deferred until final integration before production deployment in Phase 7.
+
+Local HTTP smoke passed: health/content and home/admin-dashboard/account-notifications page shells returned 200; anonymous private notification/report APIs returned 401; cross-origin BFF notification mutation returned 403. Initial backend requests preceded startup readiness; repeated checks passed after readiness. Local migrations and role bootstrap completed; ORDER_EMAIL_ENABLED verified false.

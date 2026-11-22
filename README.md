@@ -133,3 +133,5 @@ Moving to a fully supported lint toolchain needs a separate dependency proposal.
 
 Read [docs/WORK_STATUS.md](docs/WORK_STATUS.md) for the current milestone,
 verification results and user-confirmed PR state.
+
+Phase 5 adds reporting, customer/staff administration, CMS, coupons, moderated reviews and durable notifications. See [Phase 5 operations](docs/phase-5.md) and [review notes](docs/phase-5-pr.md).
