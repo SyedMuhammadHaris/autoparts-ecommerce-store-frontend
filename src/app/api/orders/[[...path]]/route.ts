@@ -5,6 +5,10 @@ export const dynamic = "force-dynamic";
 type Context = { params: Promise<{ path?: string[] }> };
 async function handle(request: Request, context: Context) {
   const path = (await context.params).path ?? [];
+  if (path.length === 2 && /^[a-f0-9]{24}$/.test(path[0]) && path[1] === "notifications") {
+    const page = new URL(request.url).searchParams.get("page");
+    return proxyApi(request, `/orders/${path[0]}/notifications/${page && /^[1-9][0-9]{0,8}$/.test(page) ? `?page=${page}` : ""}`, ["GET", "POST"]);
+  }
   if (!path.length) {
     const page = new URL(request.url).searchParams.get("page");
     return proxyApi(request, `/orders/${page && /^[1-9][0-9]{0,8}$/.test(page) ? `?page=${page}` : ""}`, ["GET"]);

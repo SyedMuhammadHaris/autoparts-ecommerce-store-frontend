@@ -5,6 +5,7 @@ import { StockForm } from "./stock-form";
 import { StaffAccountEditor } from "./staff-account-editor";
 import { ReviewModerationForm } from "@/features/reviews/review-moderation-form";
 import { permission, type Resource, type Row } from "./resources";
+import { NotificationRetryButton } from "@/features/notifications/notification-retry-button";
 
 type Props = { resource: Resource; selected: Row | null; choices: Record<string, Row[]>; user: User; canWrite: boolean; loading: boolean; error: unknown; onSaved: () => Promise<void> };
 export function AdminResourceEditor({ resource, selected, choices, user, canWrite, loading, error, onSaved }: Props) {
@@ -17,5 +18,8 @@ export function AdminResourceEditor({ resource, selected, choices, user, canWrit
     if (user.is_superuser || user.permissions.includes("reviews.moderate_review")) return <ReviewModerationForm selected={selected} onSaved={onSaved} />;
     return <><p>{String(selected.title)} · {String(selected.rating)}/5 · {String(selected.status)}</p><p className="content-copy">{String(selected.body)}</p></>;
   }
+  if (resource.key === "notifications" && selected) return <><p>{String(selected.subject)} · {String(selected.order_reference)}</p><p>{String(selected.email_state)} · {String(selected.attempts)} attempts · {String(selected.last_error_code || "No delivery error")}</p>
+    {(user.is_superuser || user.permissions.includes("notifications.retry_notification")) && ["failed", "disabled"].includes(String(selected.email_state)) && <NotificationRetryButton id={selected.id} onSaved={onSaved} />}
+  </>;
   return <p>{resource.key === "audit" ? "Audit history is read only." : "Choose a record to manage."}</p>;
 }

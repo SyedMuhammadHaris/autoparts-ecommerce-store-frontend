@@ -7,6 +7,7 @@ import { Totals } from "./totals";
 import type { Order } from "./types";
 import { PaymentPanel } from "@/features/payments/payment-panel";
 import { ReturnPanel } from "@/features/returns/return-panel";
+import { NotificationList } from "@/features/notifications/notification-list";
 
 export function OrderPage({ reference }: { reference: string }) {
   const query = useApiQuery<Order>({ path: "/api/orders/{reference}", pathParams: { reference } });
@@ -19,6 +20,7 @@ export function OrderPage({ reference }: { reference: string }) {
     {order && <><p>Reference: <strong>{order.reference}</strong></p><p>Status: {order.status} · Payment: {order.payment.status.replaceAll("_", " ")}</p>
       {order.payment.method === "bank_transfer" && <PaymentPanel reference={reference} status={order.status} />}
       {order.coupon_code && <p>Applied coupon: {order.coupon_code}</p>}
+      <NotificationList reference={reference} />
       {["delivered", "completed"].includes(order.status) && <ReturnPanel reference={reference} />}
       {order.shipment && <section className="state-panel"><h2>Shipment tracking</h2><p>{order.shipment.carrier} · {order.shipment.tracking_reference}</p><ul>{order.shipment.events.map(entry => <li key={entry.status}>{entry.status} · {new Date(entry.created_at).toLocaleString("en-PK")}</li>)}</ul></section>}
       {order.status === "pending" && <p>Your order is pending confirmation. Its stock reservation expires at {new Date(order.expires_at).toLocaleString("en-PK")}. Payment is not marked collected or verified.</p>}

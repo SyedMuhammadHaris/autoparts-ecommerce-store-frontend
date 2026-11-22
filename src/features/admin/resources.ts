@@ -1,9 +1,12 @@
 import type { User } from "@/lib/api";
+import { notificationKinds } from "@/features/notifications/types";
 export type Row = { id: number; [key: string]: unknown };
 export type Field = { key: string; label: string; type?: string; source?: string; optional?: boolean; immutable?: boolean; maxLength?: number; defaultValue?: boolean; choices?: { value: string; label: string }[] };
 export type Resource = { key: string; label: string; model: string; fields: Field[]; readonly?: boolean };
 const active = { key: "is_active", label: "Active", type: "checkbox" };
 export const resources: Resource[] = [
+  { key: "notification-templates", label: "Notification templates", model: "notifications.notificationtemplate", fields: [{ key: "kind", label: "Order event", choices: notificationKinds }, { key: "subject", label: "Subject (plain text)", maxLength: 150 }, { key: "body", label: "Message body (plain text)", type: "textarea", maxLength: 3000 }, { key: "is_active", label: "Use this custom template", type: "checkbox", defaultValue: false }] },
+  { key: "notifications", label: "Notification delivery", model: "notifications.ordernotification", fields: [], readonly: true },
   { key: "reviews", label: "Product reviews", model: "reviews.productreview", fields: [], readonly: true },
   { key: "coupons", label: "Coupons", model: "promotions.coupon", fields: [{ key: "name", label: "Campaign name", maxLength: 120 }, { key: "code", label: "Coupon code", maxLength: 40 }, { key: "kind", label: "Discount type", choices: [{ value: "fixed", label: "Fixed PKR" }, { value: "percent", label: "Percentage" }] }, { key: "value", label: "Discount value (PKR or %)", type: "money" }, { key: "min_subtotal", label: "Minimum merchandise total (PKR; enter 0 explicitly if none)", type: "money" }, { key: "starts_at", label: "Starts at (ISO8601 with timezone)", type: "datetime" }, { key: "ends_at", label: "Ends at (ISO8601 with timezone)", type: "datetime" }, { key: "global_limit", label: "Global usage limit", type: "number" }, { key: "per_account_limit", label: "Per-account limit (blank for guest-compatible coupons)", type: "number", optional: true }, { ...active, defaultValue: false }] },
   { key: "pages", label: "Content pages", model: "content.page", fields: [{ key: "title", label: "Title", maxLength: 200 }, { key: "slug", label: "URL slug", maxLength: 120 }, { key: "body", label: "Page text (plain text)", type: "textarea", maxLength: 20000 }, { key: "description", label: "SEO description", optional: true, maxLength: 160 }, { key: "is_published", label: "Publish page", type: "checkbox", defaultValue: false }] },
@@ -42,6 +45,7 @@ export function permission(user: User, model: string, action: string) {
   return user.is_superuser || user.permissions.includes(`${app}.${action}_${name}`);
 }
 export function label(row: Row): string {
+  if (row.subject) return String(row.subject);
   if (row.vehicle) return `${row.sku} → ${label(row.vehicle as Row)}`;
   if (row.model_name) return `${row.make_name} ${row.model_name} · ${row.year_start}–${row.year_end} · ${row.engine || "Engine unspecified"} · ${row.trim || "Trim unspecified"}`;
   if (row.make_name && row.name) return `${row.make_name} ${row.name}`;

@@ -21,6 +21,7 @@ export function RecordForm({ resource, selected, choices, canWrite, loading, onS
   }), onSuccess: onSaved });
   return <form noValidate onSubmit={form.handleSubmit(values => save.mutate(values))} className="panel-form">
     {resource.key === "products" && <p>Creating a product also creates its default variant and zero-stock inventory slot. Publish it with Active when ready.</p>}
+    {resource.key === "notification-templates" && <p>Supported placeholders: {"{{order_reference}}"} and {"{{event_label}}"}. Templates change future messages only. SMTP/order email is configured separately and disabled by default. Inactive templates use the safe default message.</p>}
     {resource.key === "coupons" && <p>One coupon per order, merchandise before tax only; shipping excluded. Use timestamps such as 2026-12-01T00:00:00+00:00. Pending orders hold usage slots; unpaid cancellation/expiry releases them. Confirmed orders and later refunds retain usage.</p>}
     {["pages", "homepage-sections", "banners"].includes(resource.key) && <p>Content renders as plain text in the fixed storefront design. Draft content remains private. The homepage shows the first 5 active banners and 8 active sections in display order.</p>}
     {resource.key === "store-settings" && <p>Create one settings record. These contact details are public; never enter private credentials.</p>}
