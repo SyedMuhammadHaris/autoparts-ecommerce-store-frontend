@@ -13,7 +13,7 @@ export function RecordForm({ resource, selected, choices, canWrite, loading, onS
     const value = selected?.[field.key];
     if (field.type === "checkbox") return [field.key, value === undefined ? field.key === "is_active" && resource.key !== "products" : Boolean(value)];
     if (field.type === "multiple") return [field.key, ((selected?.values as Row[] | undefined) ?? []).map(item => String(item.id))];
-    return [field.key, value !== undefined && value !== null ? String(value) : field.choices?.[0]?.value ?? (field.key === "reservation_minutes" ? "30" : field.type === "number" ? "0" : "")];
+    return [field.key, value !== undefined && value !== null ? String(value) : field.choices?.[0]?.value ?? (field.key === "reservation_minutes" ? "30" : field.type === "number" && !field.optional ? "0" : "")];
   }));
   const form = useForm<Record<string, unknown>>({ resolver: zodResolver(resourceSchema(resource, !!selected)), defaultValues: defaults });
   const save = useMutation({ retry: false, mutationFn: (payload: Record<string, unknown>) => apiAction({
@@ -22,6 +22,7 @@ export function RecordForm({ resource, selected, choices, canWrite, loading, onS
   return <form noValidate onSubmit={form.handleSubmit(values => save.mutate(values))} className="panel-form">
     {resource.key === "products" && <p>Creating a product also creates its default variant and zero-stock inventory slot. Publish it with Active when ready.</p>}
     {resource.key === "checkout-policies" && <p>Create one policy only. Leaving tax blank disables checkout. Tax is exclusive and applies to merchandise, excluding shipping. Configure a deliberate reservation duration. Payment verification follows in Phase 4.</p>}
+    {resource.key === "return-policies" && <p>Create one policy only. Set the return window after delivery and explicit shipping/tax refund rules before enabling returns. No automatic refund amounts or payouts are calculated.</p>}
     {resource.key === "images" && <p>Save a gallery image link. Selecting Primary replaces the current primary image. Uploads await a storage provider.</p>}
     {resource.key === "product-fitments" && <p>Assign a variant to verified vehicle ranges. An active assignment sets its compatibility to Specific vehicles.</p>}
     {resource.fields.map(field => {

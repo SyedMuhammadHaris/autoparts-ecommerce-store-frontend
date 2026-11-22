@@ -1,0 +1,1 @@
+export type RefundRecord = { id: number; return_request: number; order_reference: string; amount: string; currency: string; status: string; reason: string; reference: string; resolution_note: string; created_at: string; resolved_at: string | null; paid_amount: string; allocated_refunds: string };

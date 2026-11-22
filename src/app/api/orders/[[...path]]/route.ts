@@ -9,7 +9,7 @@ async function handle(request: Request, context: Context) {
     const page = new URL(request.url).searchParams.get("page");
     return proxyApi(request, `/orders/${page && /^[1-9][0-9]{0,8}$/.test(page) ? `?page=${page}` : ""}`, ["GET"]);
   }
-  if (path.length <= 2 && /^[a-f0-9]{24}$/.test(path[0]) && (!path[1] || path[1] === "cancel")) return proxyApi(request, `/orders/${path.join("/")}/`, path[1] ? ["POST"] : ["GET"]);
+  if (path.length <= 2 && /^[a-f0-9]{24}$/.test(path[0]) && (!path[1] || ["cancel", "payment", "returns"].includes(path[1]))) return proxyApi(request, `/orders/${path.join("/")}/`, ["payment", "returns"].includes(path[1]) ? ["GET", "POST"] : path[1] ? ["POST"] : ["GET"]);
   return routeErrorResponse(404, "Not found.", "NOT_FOUND");
 }
 export const GET = handle;

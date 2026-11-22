@@ -14,6 +14,7 @@ export type CheckoutBody = {
   quote_token: string; idempotency_key: string; address: Address;
 };
 export type Order = {
+  shipment?: { carrier: string; tracking_reference: string; events: { status: string; created_at: string }[] } | null;
   reference: string; status: string; subtotal: string; discount: string; shipping_fee: string;
   tax: string; tax_percent: string; total: string; currency: string; shipping_method: string;
   created_at: string; expires_at: string; address: Address & { city: string; country: string };

@@ -1,0 +1,3 @@
+export type ReturnPolicy = { name: string; is_enabled: boolean; window_days: number | null; shipping_refund_policy: string; tax_refund_policy: string; instructions: string };
+export type ReturnEntry = { refunds?: { id: number; amount: string; currency: string; status: string }[]; id: number; order_reference: string; status: string; reason: string; policy: ReturnPolicy; items: { id: number; name: string; sku: string; quantity: number; restock_quantity: number | null }[]; events: { status: string; note: string; created_at: string }[] };
+export type ReturnDetails = { policy: ReturnPolicy | null; eligible: boolean; deadline: string | null; items: { id: number; name: string; sku: string; remaining: number }[]; requests: ReturnEntry[] };

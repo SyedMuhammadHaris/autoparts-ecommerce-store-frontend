@@ -7,7 +7,9 @@ preparation for ordering. NextAuth/Simple JWT, optional email OTP, customer acco
 listings/details/variants and a permission-aware catalog admin are implemented.
 Phase 3 adds carts, merging, quoted checkout, shipping configuration, private
 order confirmations and pending-order cancellation. See [Phase 3 review](docs/phase-3.md)
-and [Phase 2 review](docs/phase-2.md). Payment verification/fulfillment remain Phase 4.
+and [Phase 2 review](docs/phase-2.md).
+See [Phase 4 review](docs/phase-4.md) for payments, fulfillment/tracking, policy-gated
+returns and audited manual refunds. Private proof uploads await a storage decision.
 See [forms/API migration](docs/forms-api-migration.md) for React Hook Form, Zod,
 TanStack Query, shared client/server fetchers and the current response contract.
 See [toast notifications](docs/toast-notifications.md) for shared API success/error

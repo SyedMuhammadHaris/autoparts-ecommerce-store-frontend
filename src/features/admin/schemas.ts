@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { Field, Resource } from "./resources";
 
 function fieldSchema(field: Field): z.ZodType {
+  if (field.key === "window_days") return z.string().refine(value => value === "" || /^\d+$/.test(value) && Number(value) >= 1 && Number(value) <= 3650, "Enter a return window from 1 to 3650 days, or leave blank while disabled.").transform(value => value === "" ? null : Number(value));
   if (field.type === "checkbox") return z.boolean();
   if (field.type === "multiple") return z.array(z.string().regex(/^[1-9][0-9]*$/)).max(16).transform(values => values.map(Number));
   if (field.source) return z.string().refine(value => field.optional && value === "" || /^[1-9][0-9]*$/.test(value), "Choose a record.").transform(value => value ? Number(value) : null);
@@ -25,6 +26,9 @@ export function editableFields(resource: Resource, editing: boolean) {
 export function resourceSchema(resource: Resource, editing: boolean) {
   const shape = Object.fromEntries(editableFields(resource, editing).map(field => [field.key, fieldSchema(field)]));
   return z.object(shape).superRefine((values, context) => {
+    if (resource.key === "return-policies" && values.is_enabled) {
+      for (const key of ["window_days", "shipping_refund_policy", "tax_refund_policy"]) if (!values[key]) context.addIssue({ code: "custom", path: [key], message: "Configure this field before enabling returns." });
+    }
     if (typeof values.year_start === "number" && typeof values.year_end === "number" && values.year_end < values.year_start) context.addIssue({ code: "custom", path: ["year_end"], message: "The last year must not precede the first year." });
   });
 }

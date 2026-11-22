@@ -4,6 +4,8 @@ export type Field = { key: string; label: string; type?: string; source?: string
 export type Resource = { key: string; label: string; model: string; fields: Field[]; readonly?: boolean };
 const active = { key: "is_active", label: "Active", type: "checkbox" };
 export const resources: Resource[] = [
+  { key: "return-policies", label: "Return policy", model: "returns.returnpolicy", fields: [{ key: "name", label: "Policy name" }, { key: "is_enabled", label: "Enable returns", type: "checkbox" }, { key: "window_days", label: "Return window after delivery (days; 1–3650)", type: "number", optional: true }, { key: "shipping_refund_policy", label: "Shipping refund rules", optional: true }, { key: "tax_refund_policy", label: "Tax refund rules", optional: true }, { key: "instructions", label: "Return instructions", optional: true }] },
+  { key: "bank-accounts", label: "Bank accounts", model: "payments.bankaccount", fields: [{ key: "name", label: "Name" }, { key: "bank_name", label: "Bank name" }, { key: "account_title", label: "Account title" }, { key: "account_number", label: "Account number" }, { key: "iban", label: "IBAN", optional: true }, { key: "instructions", label: "Transfer instructions", optional: true }, active] },
   { key: "shipping-zones", label: "Shipping zones", model: "shipping.shippingzone", fields: [{ key: "name", label: "Name" }, active] },
   { key: "cities", label: "Cities", model: "shipping.city", fields: [{ key: "name", label: "Name" }, { key: "zone", label: "Shipping zone", source: "shipping-zones" }, active] },
   { key: "shipping-methods", label: "Shipping methods", model: "shipping.shippingmethod", fields: [{ key: "name", label: "Name" }, active] },
