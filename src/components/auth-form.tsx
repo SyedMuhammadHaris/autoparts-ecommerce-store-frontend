@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { apiAction, friendlyError } from "@/lib/api";
 import { authSchema, type AuthValues } from "@/lib/forms/schemas";
-import { FormErrors } from "@/lib/forms/form-errors";
+import { errorAttributes, FormErrors } from "@/lib/forms/form-errors";
 import { authStateChanged } from "@/lib/query/provider";
 import { ApiError } from "@/lib/api/contracts";
 import { notifyError, notifySuccess } from "@/lib/notifications";
@@ -46,11 +46,11 @@ export function AuthForm({ register: signup = false }: { register?: boolean }) {
     <p className="eyebrow">Your Autoparts account</p><h1>{signup ? "Make yourself at home." : "Welcome back."}</h1>
     <p>{signup ? "Create an account. Email verification is optional after signup." : "Sign in with your email and password."}</p>
     <form noValidate onSubmit={submit} className="panel-form">
-      {signup && <label>Name<input {...form.register("name")} autoComplete="name" aria-invalid={!!form.formState.errors.name} maxLength={255} /></label>}
-      <label>Email<input {...form.register("email")} type="email" autoComplete="email" aria-invalid={!!form.formState.errors.email} maxLength={255} /></label>
-      <label>Password<input {...form.register("password")} type="password" autoComplete={signup ? "new-password" : "current-password"} aria-invalid={!!form.formState.errors.password} maxLength={128} /></label>
+      {signup && <label>Name<input {...form.register("name")} autoComplete="name" {...errorAttributes(form.formState.errors, "name", "auth")} maxLength={255} /></label>}
+      <label>Email<input {...form.register("email")} type="email" autoComplete="email" {...errorAttributes(form.formState.errors, "email", "auth")} maxLength={255} /></label>
+      <label>Password<input {...form.register("password")} type="password" autoComplete={signup ? "new-password" : "current-password"} {...errorAttributes(form.formState.errors, "password", "auth")} maxLength={128} /></label>
       {signup && <small>Use at least 8 characters; avoid common, numeric-only, or personal passwords.</small>}
-      <FormErrors errors={form.formState.errors} />
+      <FormErrors errors={form.formState.errors} idPrefix="auth" />
       {error && <p role="alert" className="form-error">{error}</p>}
       <button className="primary-button" disabled={mutation.isPending}>{mutation.isPending ? "Please wait…" : signup ? "Create account" : "Sign in"}</button>
     </form>
