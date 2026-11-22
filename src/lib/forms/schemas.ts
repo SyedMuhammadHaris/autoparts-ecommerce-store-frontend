@@ -13,6 +13,7 @@ export type AuthValues = z.infer<ReturnType<typeof authSchema>>;
 export const profileSchema = z.object({ name: nameField });
 export const otpSchema = z.object({ code: z.string().regex(/^[0-9]{6}$/, "Enter the six-digit verification code.") });
 export const checkoutSchema = z.object({
+  coupon_code: z.string().trim().regex(/^(|[A-Za-z0-9_-]{3,40})$/, "Use a coupon code of 3–40 letters, numbers, hyphens or underscores.").optional(),
   name: nameField.max(120), email: emailField.max(254),
   phone: z.string().trim().regex(/^\+?[0-9][0-9 ()-]{6,23}$/, "Enter a valid phone number.").max(25),
   line1: z.string().trim().min(1, "Enter your delivery address.").max(250),

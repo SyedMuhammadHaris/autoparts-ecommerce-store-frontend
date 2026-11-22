@@ -41,13 +41,13 @@ export function CheckoutPage() {
   const cart = cartQuery.data;
   const options = optionsQuery.data;
   const form = useForm<CheckoutValues>({ resolver: zodResolver(checkoutSchema), defaultValues: {
-    name: "", email: "", phone: "", line1: "", line2: "", postal_code: "", city: "", shipping_rate: "", payment_method: "",
+    name: "", email: "", phone: "", line1: "", line2: "", postal_code: "", city: "", shipping_rate: "", payment_method: "", coupon_code: "",
   } });
   const city = useWatch({ control: form.control, name: "city" });
   const review = useMutation<Review, Error, CheckoutValues>({ retry: false, mutationFn: async values => {
     const current = await client.fetchQuery({ queryKey: ["api", "/api/cart"], queryFn: ({ signal }) => clientFetch<Cart>({ path: "/api/cart", signal }), staleTime: 0 });
-    const { city, shipping_rate, payment_method, ...address } = values;
-    const selection = { city: Number(city), shipping_rate: Number(shipping_rate), cart_revision: current.revision, payment_method };
+    const { city, shipping_rate, payment_method, coupon_code, ...address } = values;
+    const selection = { city: Number(city), shipping_rate: Number(shipping_rate), cart_revision: current.revision, payment_method, ...(coupon_code ? { coupon_code: coupon_code.toUpperCase() } : {}) };
     const quote = await apiAction<Quote>({ path: "/api/checkout/quote", method: "POST", payload: selection, notifications: { success: false } });
     return { quote, body: { ...selection, address, quote_token: quote.quote_token } };
   } });

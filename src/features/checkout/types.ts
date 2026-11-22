@@ -10,10 +10,12 @@ export type Quote = {
 };
 export type Address = { name: string; email: string; phone: string; line1: string; line2: string; postal_code: string };
 export type CheckoutBody = {
+  coupon_code?: string;
   city: number; shipping_rate: number; cart_revision: number; payment_method: string;
   quote_token: string; idempotency_key: string; address: Address;
 };
 export type Order = {
+  coupon_code?: string;
   shipment?: { carrier: string; tracking_reference: string; events: { status: string; created_at: string }[] } | null;
   reference: string; status: string; subtotal: string; discount: string; shipping_fee: string;
   tax: string; tax_percent: string; total: string; currency: string; shipping_method: string;

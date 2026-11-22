@@ -6,7 +6,7 @@ export function Totals({ amounts }: { amounts: Amounts }) {
     <div><dt>Merchandise</dt><dd>{priceLabel(amounts.subtotal)}</dd></div>
     <div><dt>Discount</dt><dd>{priceLabel(amounts.discount)}</dd></div>
     <div><dt>Shipping</dt><dd>{priceLabel(amounts.shipping_fee)}</dd></div>
-    <div><dt>Tax ({amounts.tax_percent}%, merchandise only)</dt><dd>{priceLabel(amounts.tax)}</dd></div>
+    <div><dt>Tax ({amounts.tax_percent}%, discounted merchandise only)</dt><dd>{priceLabel(amounts.tax)}</dd></div>
     <div><dt><strong>Total</strong></dt><dd><strong>{priceLabel(amounts.total)}</strong></dd></div>
   </dl>;
 }

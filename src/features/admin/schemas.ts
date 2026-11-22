@@ -2,6 +2,8 @@ import { z } from "zod";
 import type { Field, Resource } from "./resources";
 
 function fieldSchema(field: Field): z.ZodType {
+  if (field.type === "datetime") return z.iso.datetime({ offset: true });
+  if (field.type === "number" && field.optional && field.key !== "window_days") return z.string().refine(value => value === "" || /^\d+$/.test(value) && Number(value) >= 1 && Number(value) <= 2147483647, "Enter a positive whole number or leave blank.").transform(value => value ? Number(value) : null);
   if (field.key === "window_days") return z.string().refine(value => value === "" || /^\d+$/.test(value) && Number(value) >= 1 && Number(value) <= 3650, "Enter a return window from 1 to 3650 days, or leave blank while disabled.").transform(value => value === "" ? null : Number(value));
   if (field.type === "checkbox") return z.boolean();
   if (field.type === "multiple") return z.array(z.string().regex(/^[1-9][0-9]*$/)).max(16).transform(values => values.map(Number));
@@ -26,6 +28,12 @@ export function editableFields(resource: Resource, editing: boolean) {
 export function resourceSchema(resource: Resource, editing: boolean) {
   const shape = Object.fromEntries(editableFields(resource, editing).map(field => [field.key, fieldSchema(field)]));
   return z.object(shape).superRefine((values, context) => {
+    if (resource.key === "coupons") {
+      if (values.kind === "percent" && Number(values.value) > 100) context.addIssue({ code: "custom", path: ["value"], message: "Percentage cannot exceed 100." });
+      if (Number(values.global_limit) < 1) context.addIssue({ code: "custom", path: ["global_limit"], message: "Set an explicit positive usage limit." });
+      if (values.per_account_limit && Number(values.per_account_limit) > Number(values.global_limit)) context.addIssue({ code: "custom", path: ["per_account_limit"], message: "Account limit cannot exceed global limit." });
+      if (Date.parse(String(values.ends_at)) <= Date.parse(String(values.starts_at))) context.addIssue({ code: "custom", path: ["ends_at"], message: "End must follow start." });
+    }
     if (resource.key === "return-policies" && values.is_enabled) {
       for (const key of ["window_days", "shipping_refund_policy", "tax_refund_policy"]) if (!values[key]) context.addIssue({ code: "custom", path: [key], message: "Configure this field before enabling returns." });
     }

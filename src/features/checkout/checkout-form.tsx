@@ -28,6 +28,8 @@ export function CheckoutForm({ form, options, zone, busy, locked, onReview, onCh
           <label>City<select {...form.register("city", { onChange: () => form.setValue("shipping_rate", "") })} aria-invalid={!!form.formState.errors.city}><option value="">Choose city</option>{options.cities.map(value => <option value={value.id} key={value.id}>{value.name}</option>)}</select></label>
           <label>Delivery method<select {...form.register("shipping_rate")} aria-invalid={!!form.formState.errors.shipping_rate}><option value="">Choose delivery</option>{options.rates.filter(value => value.zone_id === zone).map(value => <option value={value.id} key={value.id}>{value.name} · {priceLabel(value.fee)}</option>)}</select></label>
           <label>Payment method<select {...form.register("payment_method")} aria-invalid={!!form.formState.errors.payment_method}><option value="">Choose payment</option>{options.payment_methods.map(value => <option value={value.id} key={value.id}>{value.name}</option>)}</select></label>
+          <label>Coupon code (optional)<input {...form.register("coupon_code")} maxLength={40} autoComplete="off" /></label>
+          <p>One coupon per order. Eligibility and discounted totals are checked by the store before ordering.</p>
           <FormErrors errors={form.formState.errors} /><button className="secondary-button" disabled={busy}>Review final total</button>
         </fieldset>
       </form>

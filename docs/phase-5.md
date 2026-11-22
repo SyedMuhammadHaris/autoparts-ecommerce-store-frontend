@@ -52,3 +52,17 @@ up to 5 active banners, 8 sections and 50 page links. Dynamic root footer loadin
 means routes render dynamically; Phase 6 will address cache/performance strategy.
 142 frontend tests/29 suites and 21 backend content/catalog/account tests passed;
 lint/build/TypeScript passed. No live content/contact details seeded.
+
+## Coupon promotions
+
+Coupon code is an optional field in the existing checkout form. It stays outside
+the address payload and is omitted when empty, preserving existing replay bodies.
+Review/placement use backend-calculated discount/tax; shipping is excluded and
+tax labels identify discounted merchandise. Order confirmations show the snapshot
+code. Admin coupon configuration requires explicit dates/minimum/usage limits;
+guest-compatible codes leave per-account limit blank. Store Manager controls offers.
+
+Pending usage slots release only on unpaid cancellation/expiry; confirmed orders
+and refunds retain usage. Checkout recovery and exact retry payloads remain intact.
+144 frontend tests/30 suites and 26 backend promotion/checkout tests passed, including
+concurrent final-use claims. Lint/build/TypeScript passed; no coupons seeded locally.
