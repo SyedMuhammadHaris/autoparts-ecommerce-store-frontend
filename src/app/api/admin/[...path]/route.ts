@@ -44,7 +44,7 @@ async function handle(request: Request, context: Context) {
     const query = path.length === 1 && page && /^[1-9][0-9]{0,8}$/.test(page) ? `?page=${page}` : "";
     return proxyApi(request, `/admin/${path.join("/")}/${query}`, path[2] ? ["POST"] : ["GET"]);
   }
-  if (!(resources.has(path[0]) || ["bank-accounts", "return-policies", "pages", "banners", "homepage-sections", "store-settings", "coupons"].includes(path[0])) || path.length > 3 || path[1] && !/^[1-9][0-9]*$/.test(path[1]) || path[2] && !((path[0] === "inventory" && path[2] === "adjust") || (path[0] === "staff" && ["roles", "status"].includes(path[2])))) {
+  if (!(resources.has(path[0]) || ["bank-accounts", "return-policies", "pages", "banners", "homepage-sections", "store-settings", "coupons", "reviews"].includes(path[0])) || path.length > 3 || path[1] && !/^[1-9][0-9]*$/.test(path[1]) || path[2] && !((path[0] === "inventory" && path[2] === "adjust") || (path[0] === "staff" && ["roles", "status"].includes(path[2])) || (path[0] === "reviews" && path[2] === "moderate"))) {
     return routeErrorResponse(404, "Not found.", "NOT_FOUND");
   }
   const query = new URL(request.url).searchParams;
@@ -53,7 +53,7 @@ async function handle(request: Request, context: Context) {
     const value = query.get(key);
     if (value && /^[0-9]{1,10}$/.test(value)) forwarded.set(key, value);
   }
-  for (const key of path[0] === "staff" ? ["search"] : path[0] === "audit" ? ["action", "object_type"] : []) {
+  for (const key of path[0] === "staff" ? ["search"] : path[0] === "audit" ? ["action", "object_type"] : path[0] === "reviews" ? ["status"] : []) {
     const value = query.get(key);
     if (value !== null) {
       if (value.length > 100) return routeErrorResponse(400, "Invalid management filters.", "VALIDATION_ERROR");

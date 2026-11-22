@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CatalogNotFound, readProduct } from "@/lib/server/catalog";
 import { ProductOption } from "@/components/product-option";
+import { ProductReviews } from "@/features/reviews/product-reviews";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 export async function ProductScreen({ params, searchParams }: Props) {
@@ -28,5 +29,6 @@ export async function ProductScreen({ params, searchParams }: Props) {
         </div>
         <div><p className="eyebrow">{product.brand_name || product.category_name}</p><h1>{product.name}</h1><p>SKU: {product.sku}</p><p className="product-description">{product.description}</p><ProductOption variants={product.variants} /></div>
       </div>
+      <ProductReviews slug={product.slug} />
     </main>;
 }

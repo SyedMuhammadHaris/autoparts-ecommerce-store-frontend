@@ -6,9 +6,8 @@ import { clientFetch, friendlyError, type User } from "@/lib/api";
 import { useApiQuery } from "@/lib/query/hooks";
 import type { Page } from "@/lib/catalog-types";
 import { resources, permission, label, type Row } from "@/features/admin/resources";
-import { RecordForm } from "@/features/admin/record-form";
-import { StockForm } from "@/features/admin/stock-form";
-import { StaffAccountEditor } from "./staff-account-editor";
+import { AdminResourceEditor } from "./admin-resource-editor";
+import { ReviewStatusForm } from "@/features/reviews/review-status-form";
 import { ManagementFilterForm } from "./management-filter-form";
 
 async function allRows(resource: string, signal: AbortSignal, filters: Record<string, string>): Promise<Row[]> {
@@ -59,13 +58,14 @@ export function AdminWorkspace() {
     <nav className="admin-tabs" aria-label="Management sections">{visible.map(item => <button className="secondary-button" aria-current={resource.key === item.key ? "page" : undefined} key={item.key} onClick={() => chooseResource(item.key)}>{item.label}</button>)}</nav>
     {error && <p role="alert" className="form-error">{friendlyError(error)} <button onClick={() => queries.forEach(query => { void query.refetch(); })}>Retry loading</button></p>}
     {notice && <p role="status">{notice}</p>}
+    {resource.key === "reviews" && <ReviewStatusForm onApply={values => { setFilters(values); setSelected(null); }} />}
     {["staff", "audit"].includes(resource.key) && <ManagementFilterForm key={resource.key} audit={resource.key === "audit"} onApply={values => { setFilters(values); setSelected(null); }} />}
     {!visible.length ? <p>No management permissions have been assigned.</p> : <div className="admin-layout">
       <section><h2>{resource.label}</h2>{!resource.readonly && canWrite && <button className="secondary-button" onClick={() => { setSelected(null); setRevision(value => value + 1); }}>New record</button>}
-        {loading ? <p role="status">Loading records…</p> : rows.length === 0 ? <p>No records yet.</p> : <div className="table-scroll"><table><thead><tr><th scope="col">Record</th><th scope="col">Details</th><th scope="col">Action</th></tr></thead><tbody>{rows.map(row => <tr key={row.id}><td>{label(row)}</td><td>{resource.key === "coupons" ? `${row.usage_count} / ${row.global_limit} held or used` : resource.key === "inventory" ? `${row.quantity_on_hand} on hand / ${row.quantity_reserved} reserved / ${row.quantity_available} available` : resource.key === "audit" ? `${row.object_type} #${row.object_id} · ${row.created_at}` : row.is_active === false ? "Inactive / draft" : row.sku ? String(row.sku) : `#${row.id}`}</td><td>{resource.key !== "audit" && <button className="secondary-button" onClick={() => { setSelected(row); setNotice(""); }}>{resource.key === "inventory" ? "Adjust" : resource.key === "staff" ? "Roles" : "View / edit"}</button>}</td></tr>)}</tbody></table></div>}
+        {loading ? <p role="status">Loading records…</p> : rows.length === 0 ? <p>No records yet.</p> : <div className="table-scroll"><table><thead><tr><th scope="col">Record</th><th scope="col">Details</th><th scope="col">Action</th></tr></thead><tbody>{rows.map(row => <tr key={row.id}><td>{label(row)}</td><td>{resource.key === "reviews" ? `${row.rating}/5 · ${row.status} · revision ${row.revision}` : resource.key === "coupons" ? `${row.usage_count} / ${row.global_limit} held or used` : resource.key === "inventory" ? `${row.quantity_on_hand} on hand / ${row.quantity_reserved} reserved / ${row.quantity_available} available` : resource.key === "audit" ? `${row.object_type} #${row.object_id} · ${row.created_at}` : row.is_active === false ? "Inactive / draft" : row.sku ? String(row.sku) : `#${row.id}`}</td><td>{resource.key !== "audit" && <button className="secondary-button" onClick={() => { setSelected(row); setNotice(""); }}>{resource.key === "inventory" ? "Adjust" : resource.key === "staff" ? "Roles" : "View / edit"}</button>}</td></tr>)}</tbody></table></div>}
       </section>
       <section className="admin-editor" key={`${resource.key}-${selected?.id ?? "new"}-${revision}`}><h2>{selected ? label(selected) : "New record"}</h2>
-        {loading ? <p role="status">Loading editor choices…</p> : error ? <p>Resolve the loading error before editing records.</p> : !resource.readonly ? <RecordForm resource={resource} selected={selected} choices={choices} canWrite={canWrite} loading={loading} onSaved={saved} /> : resource.key === "inventory" && selected ? permission(user, resource.model, "change") ? <StockForm id={selected.id} onSaved={saved} /> : <p>You have read access to inventory.</p> : resource.key === "staff" && selected ? <StaffAccountEditor selected={selected} roles={choices.roles ?? []} onSaved={saved} /> : <p>{resource.key === "audit" ? "Audit history is read only." : "Choose a record to manage."}</p>}
+        <AdminResourceEditor resource={resource} selected={selected} choices={choices} user={user} canWrite={canWrite} loading={loading} error={error} onSaved={saved} />
       </section>
     </div>}
   </main>;

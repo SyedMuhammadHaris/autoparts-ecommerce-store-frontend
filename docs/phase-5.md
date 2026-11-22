@@ -66,3 +66,16 @@ Pending usage slots release only on unpaid cancellation/expiry; confirmed orders
 and refunds retain usage. Checkout recovery and exact retry payloads remain intact.
 144 frontend tests/30 suites and 26 backend promotion/checkout tests passed, including
 concurrent final-use claims. Lint/build/TypeScript passed; no coupons seeded locally.
+
+## Reviews
+
+ProductReviews separates anonymous published reads from authenticated owner APIs;
+ReviewForm submits only public display name/rating/title/body and explains moderation.
+One review per verified purchaser/product; email verification remains optional.
+Editing returns content to pending. Staff review filters and ReviewModerationForm
+send the displayed revision, so stale decisions cannot approve newer unseen content.
+Generic admin editor rendering moved into AdminResourceEditor to keep form selection
+readable as more resource-specific workflows are added.
+
+148 frontend tests/32 suites and 14 backend review/content/promotion tests passed;
+lint/build/TypeScript passed. Public API and private owner BFF methods are separate.
