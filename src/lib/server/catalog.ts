@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { serverFetch } from "@/lib/server/fetch";
 import { ApiError } from "@/lib/api/contracts";
 import { vehicleQuery } from "@/lib/vehicle-query";
@@ -7,14 +8,15 @@ import type { Page, Product, Taxonomy, VehicleMake, VehicleModel, VehicleFitment
 export class CatalogNotFound extends Error {}
 export class CatalogInvalidFilters extends Error {}
 
-async function readCatalog<T>(path: string): Promise<T> {
+// Request-local deduplication only: never share live prices/stock between requests.
+const readCatalog = cache(async function readCatalog<T>(path: string): Promise<T> {
   try { return await serverFetch<T>({ path: "/catalog/" + path }); }
   catch (failure) {
     if (failure instanceof ApiError && failure.status === 404) throw new CatalogNotFound("Not found");
     if (failure instanceof ApiError && failure.status === 400) throw new CatalogInvalidFilters("Check the selected filters");
     throw new Error("Catalog unavailable");
   }
-}
+});
 export function readProducts(query: Record<string, string | string[] | undefined>): Promise<Page<Product>> {
   const params = new URLSearchParams();
   for (const key of ["search", "category", "brand", "min_price", "max_price", "ordering", "page", "make", "model", "year", "engine", "trim"]) {
